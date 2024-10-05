@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.loginmodule.mapper.OrderMapper">
+
+    <select id="selectByShopId" resultType="java.util.HashMap">
+        SELECT orders.orderId, orders.address, order_state.stateName, orders.createTime, order_shops.totalMoney, user.userName
+        FROM orders
+        JOIN order_shops ON orders.orderId = order_shops.orderId
+        JOIN user ON user.userId = orders.userId
+        JOIN order_state ON order_state.state = orders.state
+        <where>
+            order_shops.shopId = #{shopId}
+            <if test="state != null and state != ''">
+                AND orders.state = #{state}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByUserId" resultType="java.util.HashMap">
+        SELECT orders.orderId, orders.totalPrice, orders.address, order_state.stateName, orders.createTime, orders.userId
+        FROM orders
+        JOIN order_state ON order_state.state = orders.state
+        <where>
+            orders.userId = #{userId}
+            <if test="state != null">
+                AND orders.state = #{state}
+            </if>
+        </where>
+    </select>
+</mapper>
