@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.loginmodule.mapper.ShopDataMapper">
+
+    <select id="selectTotalorderByShopId" resultType="java.util.HashMap">
+        select count(order_shops.orderId) as orderTotalNum from order_shops,orders
+        <where>
+            shopId=#{shopId} and orders.orderId=order_shops.orderId
+            <if test="createTimeLow != null and createTimeHigh != null">
+                and createTime Between #{createTimeLow} and #{createTimeHigh}
+            </if>
+            <if test="createTimeLow == null and createTimeHigh != null">
+                and createTime <![CDATA[<=]]> #{createTimeHigh}
+            </if>
+            <if test="createTimeLow != null and createTimeHigh == null">
+                and createTime >= #{createTimeLow}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectSaleOrderByShopId" resultType="java.util.HashMap">
+        select count(orders.orderId) as orderSaleNum,     COALESCE(sum(order_shops.totalMoney), 0)as saleMoney, count(userId) as TotalCustomers
+        from order_shops
+        join orders on orders.orderId = order_shops.orderId
+        <where>
+            shopId=#{shopId}
+            and orders.state Not In(0, 4)
+            <if test="createTimeLow != null and createTimeHigh != null">
+                and createTime Between #{createTimeLow} and #{createTimeHigh}
+            </if>
+            <if test="createTimeLow == null and createTimeHigh != null">
+                and createTime <![CDATA[<=]]> #{createTimeHigh}
+            </if>
+            <if test="createTimeLow != null and createTimeHigh == null">
+                and createTime >= #{createTimeLow}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectSuccessOrderByShopId" resultType="java.util.HashMap">
+        select count(orders.orderId) as orderSuccessNum, sum(order_shops.totalMoney) as orderSuccessMoney
+        from order_shops
+        join orders on orders.orderId = order_shops.orderId
+        <where>
+            shopId=#{shopId}
+            and orders.state != 4
+            <if test="createTimeLow != null and createTimeHigh != null">
+                and createTime Between #{createTimeLow} and #{createTimeHigh}
+            </if>
+            <if test="createTimeLow == null and createTimeHigh != null">
+                and createTime <![CDATA[<=]]> #{createTimeHigh}
+            </if>
+            <if test="createTimeLow != null and createTimeHigh == null">
+                and createTime >= #{createTimeLow}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectGoodBySale" resultType="java.util.Map">
+        select good.name as goodName, sum(order_items.buyNum) as buyNum
+        from good
+        join order_items on order_items.goodId = good.goodId
+        join orders on order_items.orderId = orders.orderId
+        join order_shops on order_shops.orderId=orders.orderId
+        <where>
+            order_shops.shopId=#{shopId}
+            and orders.state != 4
+            <if test="createTimeLow != null and createTimeHigh != null">
+                and createTime Between #{createTimeLow} and #{createTimeHigh}
+            </if>
+            <if test="createTimeLow == null and createTimeHigh != null">
+                and createTime <![CDATA[<=]]> #{createTimeHigh}
+            </if>
+            <if test="createTimeLow != null and createTimeHigh == null">
+                and createTime >= #{createTimeLow}
+            </if>
+        </where>
+        GROUP BY good.name
+        ORDER BY buyNum desc
+    </select>
+</mapper>

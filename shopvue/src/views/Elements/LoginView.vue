@@ -95,7 +95,7 @@ export default {
             console.log("登录成功", response.data);
             // 存储JWT到本地
             localStorage.setItem("jwt", response.data.data.token);
-            this.$router.push("/shop");
+            this.$router.push("/manageGood");
           } // 用户类型为1，跳转到商店页面
         }
       } catch (error) {

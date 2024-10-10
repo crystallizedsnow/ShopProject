@@ -24,8 +24,8 @@
             <if test="plow != null and phigh == null">
                 and price &gt;= #{plow}
             </if>
-            <if test="shopId!=null and shopId!=''">
-                and good.shopId=#{shopId}
+            <if test="shopName!=null and shopName!=''">
+                and shop.shopName=#{shopName}
             </if>
         </where>
     </select>

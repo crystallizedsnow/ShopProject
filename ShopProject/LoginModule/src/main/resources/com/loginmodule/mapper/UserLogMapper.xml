@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.loginmodule.mapper.UserLogMapper">
+    <select id="selectUserLog" resultType="java.util.HashMap">
+        SELECT good.name AS goodName, COUNT(*) AS goodView
+        FROM user_log JOIN good ON good.goodId = user_log.goodId
+        <where>
+            good.shopId = #{shopId} AND user_log.action = #{action}
+            GROUP BY good.name
+            <if test="createTimeLow != null and createTimeHigh != null">
+                and createTime Between #{createTimeLow} and #{createTimeHigh}
+            </if>
+            <if test="createTimeLow == null and createTimeHigh != null">
+                and createTime <![CDATA[<=]]> #{createTimeHigh}
+            </if>
+            <if test="createTimeLow != null and createTimeHigh == null">
+                and createTime >= #{createTimeLow}
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -7,8 +7,8 @@
           管理 <i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="user"> 管理用户</el-dropdown-item>
-          <el-dropdown-item command="order">管理订单</el-dropdown-item>
+          <el-dropdown-item command="good"> 管理商品</el-dropdown-item>
+          <el-dropdown-item command="data">管理商店数据</el-dropdown-item>
           <el-dropdown-item command="logout">注销</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
@@ -37,14 +37,28 @@
       <p>明细：</p>
 
       <el-table :data="order.items" style="margin-bottom: 20px">
-        <el-table-column label="商品信息">
+        <el-table-column label="商品名" prop="goodName"></el-table-column>
+        <el-table-column label="数量" prop="buyNum"></el-table-column>
+        <el-table-column label="单价" prop="price"></el-table-column>
+        <el-table-column label="总价">
           <template slot-scope="scope">
-            {{ scope.row.goodName }}  {{ scope.row.buyNum }} ×
-            {{ scope.row.price }} 元 =
-              {{ (scope.row.buyNum * scope.row.price).toFixed(2) }} 元
+            {{ (scope.row.buyNum * scope.row.price).toFixed(2) }} 元
           </template>
         </el-table-column>
       </el-table>
+      <el-row>
+        <el-col :span="24" style="text-align: right">
+          <strong
+            >订单总金额:
+            {{
+              order.items
+                .reduce((total, item) => total + item.buyNum * item.price, 0)
+                .toFixed(2)
+            }}
+            元</strong
+          >
+        </el-col>
+      </el-row>
 
       <el-button
         v-if="order.stateName === '未发货'"
@@ -191,47 +205,47 @@ export default {
         );
         if (response.data.code === 1) {
           this.$message.success("订单已发货！");
-          await this.selectOrders(this.selectedState); 
+          await this.selectOrders(this.selectedState);
         } else {
           this.$message.error("订单发货失败，请重试！");
         }
       } catch (error) {
         console.error(error);
         this.$message.error("订单发货失败，请重试！");
-      };
-      try{
-        const response=await axios.post(
-            `http://localhost:8080/order/sendEmail`,
-            null,
-            {
-                headers:{token:token},
-                params:{orderId:orderId,shopName:this.shopName}
-            }
+      }
+      try {
+        const response = await axios.post(
+          `http://localhost:8080/order/sendEmail`,
+          null,
+          {
+            headers: { token: token },
+            params: { orderId: orderId, shopName: this.shopName },
+          }
         );
-         if (response.data.code === 1) {
+        if (response.data.code === 1) {
           this.$message.success("发送邮件成功！");
         } else {
           this.$message.error("发送邮件失败，请重试！");
         }
-      }catch(error){
-             console.error(error);
+      } catch (error) {
+        console.error(error);
         this.$message.error("发送邮件失败，请重试！");
       }
     },
     handleCommand(command) {
-      if (command === "user") {
-        this.goToManageUser();
-      } else if (command === "order") {
-        this.goToManageOrder();
+      if (command === "data") {
+        this.goToManageData();
+      } else if (command === "good") {
+        this.goToManageGood();
       } else if (command === "logout") {
         this.logout();
       }
     },
-    goToManageUser() {
-      this.$router.push("/manageUser");
+    goToManageData() {
+      this.$router.push("/manageData");
     },
-    goToManageOrder() {
-      this.$router.push("/manageOrder");
+    goToManageGood() {
+      this.$router.push("/manageGood");
     },
     logout() {
       localStorage.removeItem("jwt"); // 删除本地存储中的JWT

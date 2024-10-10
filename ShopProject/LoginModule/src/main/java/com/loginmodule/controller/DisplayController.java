@@ -27,9 +27,12 @@ public class DisplayController {
     @GetMapping("/goods")
     public Result page(@RequestParam(required=false,defaultValue="1")Integer page,
                        @RequestParam(required=false,defaultValue ="10")Integer pageSize,
-                       @RequestParam(required = false) String goodName,@RequestParam(required = false) Integer type,@RequestParam(required = false) Integer shopId,@RequestParam(required = false) Double plow,@RequestParam(required = false) Double phigh) {
-        log.info("查询商品，参数：页数：{},页面大小：{},商品名称：{},商品类型{}，商店编号：{},价格范围：{}-{}",page,pageSize,goodName,type,shopId,plow,phigh);
-        PageBean pageBean=displayService.page(page,pageSize,goodName,type,shopId,plow,phigh);
+                       @RequestParam(required = false) String goodName,@RequestParam(required = false) Integer type,
+                       @RequestParam(required = false) String shopName,
+                       @RequestParam(required = false) Double plow,@RequestParam(required = false) Double phigh,
+                       @RequestParam(required=false) Integer userId) {
+        log.info("查询商品，参数：页数：{},页面大小：{},商品名称：{},商品类型{}，商店编号：{},价格范围：{}-{},查询用户{}",page,pageSize,goodName,type,shopName,plow,phigh,userId);
+        PageBean pageBean=displayService.page(page,pageSize,goodName,type,shopName,plow,phigh,userId);
         return Result.success(pageBean);
     }
     @GetMapping("/getGoodsByIds")
@@ -63,4 +66,4 @@ public class DisplayController {
         List<Type> types=displayService.getTypes();
         return Result.success(types);
     }
-}
+}//前端记得/good加上userId

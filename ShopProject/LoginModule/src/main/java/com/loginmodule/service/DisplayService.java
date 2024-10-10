@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Service
 public interface DisplayService {
-    PageBean page(Integer page, Integer pageSize, String goodName, Integer type, Integer shopId,Double plow,Double phigh);
+    PageBean page(Integer page, Integer pageSize, String goodName, Integer type, String shopName,Double plow,Double phigh,Integer userId);
 
     String getTypeName(Integer type);
 

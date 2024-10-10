@@ -13,7 +13,7 @@ import java.util.Map;
 @Mapper
 public interface DisplayMapper {
     List<Good> list(@Param("name") String goodName, @Param("type") Integer type,
-                    @Param("shopId") Integer shopId, @Param("plow") Double plow, @Param("phigh") Double phigh);
+                    @Param("shopName") String shopName, @Param("plow") Double plow, @Param("phigh") Double phigh);
     @Select("select typeName from good_type where good_type.type=#{type}")
     String getTypeName(Integer type);
     @Select("select * from good_type")

@@ -120,6 +120,7 @@
       >{{ type.name }}</el-radio>
     </el-radio-group>
   </el-row> -->
+  
 
       <el-row v-if="this.detail.text">
         <span>详情：</span>
@@ -153,7 +154,7 @@ export default {
   data() {
     return {
       userName: "",
-      userId: "",
+      userId: null,
       searchQuery: "",
       goods: [],
       page: 1,
@@ -183,18 +184,20 @@ export default {
     };
   },
   mounted() {
-    this.getAllTypes();
-    this.fetchUserName();
-    this.fetchGoods();
+    this.initialPage();
   },
   methods: {
+   async initialPage() {
+    this.getAllTypes();
+    await this.fetchUserName();
+  },
     // 获取用户名
-    fetchUserName() {
+   async fetchUserName() {
       const token = localStorage.getItem("jwt"); // 从本地存储中获取JWT
       console.log("获得jwt:", token);
       if (!token) {
         this.userName = null; // 如果没有JWT，显示“请登录”
-        return;
+         this.fetchGoods();
       }
 
       axios
@@ -207,10 +210,13 @@ export default {
           console.log(response);
           this.userName = response.data.data.username;
           this.userId = response.data.data.userId;
+          console.log("userId:", this.userId); 
+           this.fetchGoods();//执行完获取userId再fetchGoods
         })
         .catch((error) => {
           console.error("未能获取用户信息", error);
           this.userName = null; // 如果获取用户名失败，显示“请登录”
+           this.fetchGoods();
         });
     },
     // 注销
@@ -262,6 +268,7 @@ export default {
     // 获取商品
     fetchGoods() {
       this.loading = true;
+      console.log("userId1:",this.userId);
       axios
         .get("http://localhost:8080/goods", {
           params: {
@@ -272,6 +279,7 @@ export default {
             type: this.type,
             plow: this.plow,
             phigh: this.phigh,
+            userId:this.userId
           },
         })
         .then((response) => {
@@ -387,7 +395,7 @@ export default {
       this.fetchGoods();
     },
   },
-};
+};//未实现先获得userId,再fetchGoods
 </script>
 
 <style scoped>

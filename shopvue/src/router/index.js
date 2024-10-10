@@ -22,8 +22,8 @@ const routes = [
     component:() => import('../views/Elements/RegisterView.vue')
   },
   {
-    path:'/shop',
-    name:'shop',
+    path:'/manageGood',
+    name:'manageGood',
     component:() => import('../views/Elements/ManageGoodView.vue')
   },
   {
@@ -55,6 +55,11 @@ const routes = [
     path:'/paymentsuccess',
     name:'paymentsuccess',
     component:()=>import('../views/Elements/PaySuccessView.vue')
+  },
+  {
+    path:'/managedata',
+    name:'managedata',
+    component:()=>import('../views/Elements/ManageDataView.vue')
   },
 ]
 const router = new VueRouter({

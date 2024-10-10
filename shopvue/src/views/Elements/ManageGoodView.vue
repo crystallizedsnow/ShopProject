@@ -7,7 +7,7 @@
           管理 <i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="user"> 管理用户</el-dropdown-item>
+          <el-dropdown-item command="data"> 管理商店数据</el-dropdown-item>
           <el-dropdown-item command="order">管理订单</el-dropdown-item>
           <el-dropdown-item command="logout">注销</el-dropdown-item>
         </el-dropdown-menu>
@@ -342,16 +342,16 @@ export default {
       this.form.image = response.url; // 获取上传成功后的图片URL
     },
     handleCommand(command) {
-      if (command === "user") {
-        this.goToManageUser();
+      if (command === "data") {
+        this.goToManageData();
       } else if (command === "order") {
         this.goToManageOrder();
       } else if (command =="logout") {
         this.logout();
       }
     },
-    goToManageUser() {
-      this.$router.push("/manageUser");
+    goToManageData() {
+      this.$router.push("/manageData");
     },
     goToManageOrder() {
       this.$router.push("/manageOrder");
