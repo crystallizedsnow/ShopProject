@@ -1,79 +1,93 @@
 <template>
   <div class="order-confirmation">
-    <el-form :model="form">
-      <!-- 用户个人信息 -->
-      <el-dropdown v-show="userName" :key="userName">
+    <!-- 用户个人信息 -->
+    <el-row class="header" type="flex" justify="space-between">
+      <el-dropdown v-if="userName" @command="handleCommand">
         <span class="el-dropdown-link">
-          用户：{{ userName }} ，您好
-          <i class="el-icon-arrow-down el-icon--right"></i>
+          用户：{{ userName }} ，您好<i
+            class="el-icon-arrow-down el-icon--right"
+          ></i>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item @click="gotoDisplay">首页</el-dropdown-item>
-          <el-dropdown-item @click="logout">注销</el-dropdown-item>
+          <el-dropdown-item command="display">首页</el-dropdown-item>
+          <el-dropdown-item command="logout">注销</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <!-- 收集用户地址 -->
-      <h2>收货地址</h2>
-      <el-form-item>
-        <el-input
-          v-model="form.address"
-          placeholder="请输入收货地址"
-        ></el-input>
-      </el-form-item>
-      <h2>确认订单信息</h2>
-      <!-- 展示所选商品 -->
-      <div
-        v-for="(shop, index) in groupedGoods"
-        :key="'shop--' + index"
-        style="width: 100%"
-      >
-        <!-- 展示商店名 -->
-        <div>
-          <h3>商店名：{{ shop.shopName }}</h3>
+      <span v-else @click="goToLogin">请登录</span>
+    </el-row>
+    <!-- 卡片包裹内容 -->
+    <el-card class="order-card">
+      <el-form :model="form">
+        <h2>添加订单</h2>
+        <el-divider></el-divider>
+        <!-- 收集用户地址 -->
+        <h3>收货地址</h3>
+        <el-form-item>
+          <el-input
+            v-model="form.address"
+            placeholder="请输入收货地址"
+          ></el-input>
+        </el-form-item>
+
+        <h3>确认订单信息</h3>
+
+        <!-- 展示所选商品 -->
+        <div
+          v-for="(shop, index) in groupedGoods"
+          :key="'shop--' + index"
+          style="width: 100%"
+        >
+          <!-- 展示商店名 -->
+          <div>
+            <h3>商店名：{{ shop.shopName }}</h3>
+          </div>
+
+          <!-- 展示商品信息 -->
+          <el-table style="font-size:18px;"  :cell-style="{ textAlign: 'center' }" :header-cell-style="{textAlign: 'center'}" :data="shop.items" class="order-table">
+            <el-table-column
+              prop="goodName"
+              label="商品名"
+              width="150px"
+            ></el-table-column>
+            <el-table-column label="商品图片" width="200px">
+              <template slot-scope="scope">
+                <img
+                  :src="scope.row.image"
+                  alt="商家未添加商品图片"
+                  style="width: 150px; height: 150px"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column
+              prop="cartnum"
+              label="数目"
+              width="150px"
+            ></el-table-column>
+            <el-table-column
+              prop="price"
+              label="单价"
+              width="150px"
+            ></el-table-column>
+            <el-table-column
+              prop="totalPrice"
+              label="总价"
+              width="150px"
+            ></el-table-column>
+          </el-table>
+
+          <!-- 每个商店的总价 -->
+          <div :style="{ textAlign: 'right' }">
+            <strong>{{ shop.shopName }} 总价: ￥{{ shop.shopTotal }}</strong>
+          </div>
         </div>
 
-        <!-- 展示商品信息 -->
-        <el-table :data="shop.items" style="width: 100%">
-          <el-table-column
-            prop="goodName"
-            label="商品名"
-            width="120"
-          ></el-table-column>
-          <el-table-column label="商品图片" width="150">
-            <template slot-scope="scope">
-              <img :src="scope.row.image" alt="商品图片" style="width: 80px" />
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="cartnum"
-            label="数目"
-            width="80"
-          ></el-table-column>
-          <el-table-column
-            prop="price"
-            label="单价"
-            width="80"
-          ></el-table-column>
-          <el-table-column
-            prop="totalPrice"
-            label="总价"
-            width="80"
-          ></el-table-column>
-        </el-table>
-
-        <!-- 计算并展示每个商店的总价 -->
-        <div :style="{ textAlign: 'right' }">
-          <strong>{{ shop.shopName }} 总价: ￥ {{ shop.shopTotal }}</strong>
+        <!-- 总价和购买按钮 -->
+        <div class="order-summary">
+          <h3>订单总价: ￥{{ totalPrice }}</h3>
+          <el-button type="primary" @click="handlePurchase">购买</el-button>
         </div>
-      </div>
-      <!-- 总价展示 -->
-      <div class="total-price">
-        <h3>订单总价: ￥{{ totalPrice }}</h3>
-      </div>
-
-      <!-- 购买按钮 -->
-      <el-button type="primary" @click="handlePurchase">购买</el-button>
-    </el-form>
+      </el-form>
+    </el-card>
   </div>
 </template>
 
@@ -119,7 +133,7 @@ export default {
         if (!shopMap[item.shopName]) {
           shopMap[item.shopName] = {
             shopName: item.shopName,
-            shopId:item.shopId,
+            shopId: item.shopId,
             items: [],
             shopTotal: 0,
           };
@@ -129,9 +143,6 @@ export default {
       });
 
       this.groupedGoods = Object.values(shopMap);
-      console.log(this.groupedGoods);
-      console.log("groupedGoods[0].items:");
-      console.log(this.groupedGoods[0].items);
     },
     // 处理购买操作，插入订单并跳转支付页面
     handlePurchase() {
@@ -140,35 +151,35 @@ export default {
         return;
       }
 
-     // 准备订单数据
-const orderItems = [];
-const orderShops = [];
+      // 准备订单数据
+      const orderItems = [];
+      const orderShops = [];
 
-this.groupedGoods.forEach(shop => {
-  // 添加商店信息
-  orderShops.push({
-    shopId: shop.shopId, 
-    totalMoney: shop.shopTotal
-  });
+      this.groupedGoods.forEach((shop) => {
+        // 添加商店信息
+        orderShops.push({
+          shopId: shop.shopId,
+          totalMoney: shop.shopTotal,
+        });
 
-  // 为每个商店添加商品信息
-  shop.items.forEach(item => {
-    orderItems.push({
-      goodId: item.goodId, 
-      buyNum: item.cartnum
-    });
-  });
-});
+        // 为每个商店添加商品信息
+        shop.items.forEach((item) => {
+          orderItems.push({
+            goodId: item.goodId,
+            buyNum: item.cartnum,
+          });
+        });
+      });
 
-// 组装订单数据
-const order = {
-  userId: this.userId,
-  address: this.form.address,
-  totalPrice: this.totalPrice,
-  state: 0, // 未付款
-  orderItems: orderItems,
-  orderShops: orderShops
-};
+      // 组装订单数据
+      const order = {
+        userId: this.userId,
+        address: this.form.address,
+        totalPrice: this.totalPrice,
+        state: 0, // 未付款
+        orderItems: orderItems,
+        orderShops: orderShops,
+      };
       const token = localStorage.getItem("jwt");
       // 调用后端接口生成订单
       axios
@@ -180,17 +191,19 @@ const order = {
         .then((response) => {
           if (response.data.code) {
             this.$message.success("订单生成成功！");
-            var orderId=response.data.data;
-              this.$router.push({ path: "/payment", query: { totalPrice: this.totalPrice,orderId:orderId} });
+            var orderId = response.data.data;
+            this.$router.push({
+              path: "/payment",
+              query: { totalPrice: this.totalPrice, orderId: orderId },
+            });
           } else {
-            this.$message.error("订单生成失败，请重试！");
+            this.$message.error(response.data.msg);
           }
         })
         .catch((error) => {
           this.$message.error("订单生成失败，请重试！");
           console.error(error);
         });
-        
     },
     async getUserName() {
       const token = localStorage.getItem("jwt");
@@ -239,7 +252,6 @@ const order = {
 
         if (response.data && response.data.data && response.data.code) {
           const goods = response.data.data; // 获取商品信息
-          console.log(goods);
           // 更新 selectedGoods，插入商品的详细信息
           this.selectedGoods = this.selectedGoods.map((item) => {
             const good = goods.find((g) => g.goodId === item.goodId);
@@ -253,8 +265,6 @@ const order = {
               totalPrice: good.price * item.cartnum,
             };
           });
-          console.log("_");
-          console.log(this.selectedGoods[0].shopId);
           // 计算总价
           this.calculateTotalPrice();
         }
@@ -272,3 +282,52 @@ const order = {
   },
 };
 </script>
+<style scoped>
+shopping-page {
+  padding: 20px;
+}
+
+.header {
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+}
+
+.header span {
+  font-size: 16px;
+}
+.order-card {
+  width: 80%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+  padding: 40px;
+  margin:  40px auto;
+}
+
+.order-card .order-table {
+  width: 800px; /* 表格宽度 */
+  margin: 0 auto;
+  padding: 0 auto;
+}
+
+.order-card .order-table img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover; /* 图片尺寸固定 */
+}
+
+.order-summary {
+  display: flex;
+  justify-content: space-between; /* 购买按钮和总价对称分布 */
+  align-items: center;
+  margin-top: 20px;
+  padding: 0 ; /* 给内容与卡片边框添加适当的距离 */
+}
+
+.order-summary h3 {
+  font-size: 18px;
+}
+
+.order-summary .el-button {
+  font-size: 16px;
+}
+ 
+</style>

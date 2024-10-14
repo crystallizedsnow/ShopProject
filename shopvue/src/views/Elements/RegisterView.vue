@@ -61,9 +61,6 @@ export default {
     
     check() {
       this.flag = true;
-      console.log(this.form.email);
-      console.log(this.form.username);
-      console.log(this.form.password);
       var ePattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
       if (this.form.email === "" || this.form.username === "" || this.form.password === "") {
         this.message = "信息没填写完整";
@@ -79,7 +76,6 @@ export default {
       } else if (this.form.type === "我是商家") {
         this.form.type = "1";
       } else {
-        console.log(this.form.type);
         this.message = "请选择您是用户还是商家。";
         this.notice(); 
         this.flag = false;
@@ -101,7 +97,6 @@ export default {
             }
           );
           this.$message.success("注册成功,请登录");
-          console.log("注册成功", response.data);
         } catch (error) {
           console.error("注册失败", error);
           this.message = "注册失败，请重试"; 

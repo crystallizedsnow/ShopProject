@@ -1,12 +1,10 @@
 <template>
   <div>
-    <h2>订单列表</h2>
+     <!-- 用户个人信息 -->
     <el-row class="header" type="flex" justify="space-between">
       <el-dropdown v-if="userName" @command="handleCommand">
         <span class="el-dropdown-link">
-          用户：{{ userName }} ，您好<i
-            class="el-icon-arrow-down el-icon--right"
-          ></i>
+          用户：{{ userName }} ，您好<i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="display">首页</el-dropdown-item>
@@ -15,7 +13,7 @@
       </el-dropdown>
       <span v-else @click="goToLogin">请登录</span>
     </el-row>
-
+    <h2>订单列表</h2>
     <el-menu
       :default-active="selectedState"
       mode="horizontal"
@@ -48,7 +46,6 @@
           </template>
         </el-table-column>
       </el-table>
-
       <el-button
         v-if="order.stateName === '未付款'"
         type="danger"
@@ -58,6 +55,13 @@
       </el-button>
       <el-button
         v-if="order.stateName === '未付款'"
+        type="success"
+        @click="payOrder(order.orderId)"
+      >
+        支付订单
+      </el-button>
+        <el-button
+        v-if="order.stateName === '已发货'"
         type="success"
         @click="confirmReceipt(order.orderId)"
       >
@@ -174,7 +178,7 @@ export default {
         );
         if (response.data.code === 1) {
           this.$message.success("订单已取消！");
-          this.fetchOrders(); // Refresh the order list
+          this.filterOrders(this.selectedState);
         } else {
           this.$message.error("取消订单失败，请重试！");
         }
@@ -200,13 +204,40 @@ export default {
 
         if (response.data.code === 1) {
           this.$message.success("确认收货成功！");
-          this.fetchOrders(); // 刷新订单列表
+          this.filterOrders(this.selectedState); // 刷新订单列表
         } else {
           this.$message.error("确认收货失败，请重试！");
         }
       } catch (error) {
         console.error(error);
         this.$message.error("确认收货失败，请重试！");
+      }
+      
+    },
+    async payOrder(orderId) {
+      const token = localStorage.getItem("jwt");
+      try {
+        const response = await axios.post(
+          `http://localhost:8080/order/updateState`,
+          null,
+          {
+            headers: { token: token },
+            params: {
+              orderId: orderId,
+              state: 1,
+            },
+          }
+        );
+
+        if (response.data.code === 1) {
+          this.$message.success("支付成功！");
+           this.filterOrders(this.selectedState); // 刷新订单列表
+        } else {
+          this.$message.error("支付失败，请重试！");
+        }
+      } catch (error) {
+        console.error(error);
+        this.$message.error("支付失败，请重试！");
       }
       
     },
@@ -217,6 +248,7 @@ export default {
         this.goToLogin();
       }
     },
+    
     goToLogin() {
       this.$router.push("/login");
     },
@@ -228,10 +260,37 @@ export default {
 </script>
 
 <style scoped>
+.header {
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+}
+
+.header span {
+  font-size: 16px;
+}
+
+/* 筛选选择器内文字 */
+.el-menu-item {
+  font-size: 16px;
+}
+
 .order-container {
   border: 1px solid #e0e0e0;
   padding: 15px;
   margin-bottom: 10px;
   border-radius: 5px;
+  font-size: 16px; /* 订单文字大小 */
+}
+
+.order-container h3 {
+  font-size: 18px; /* 订单号字体大小保持不变 */
+}
+
+.el-table {
+  font-size: 16px; /* 表格内文字大小 */
+}
+
+.el-table .el-table-column {
+  font-size: 16px; /* 表格列的文字大小 */
 }
 </style>

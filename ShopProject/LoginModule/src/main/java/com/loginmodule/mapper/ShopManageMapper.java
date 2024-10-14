@@ -24,4 +24,6 @@ public interface ShopManageMapper {
     Integer selectShopIdByshopName(String shopName);
     @Insert("update user set shopId=#{shopId} where userId=#{userId}")
     void updateShopIntoUser(@Param("userId")String userId, @Param("shopId")Integer shopId);
+    @Select("select image from good where goodId=#{goodId}")
+    String selectUrlbyId(String goodId);
 }

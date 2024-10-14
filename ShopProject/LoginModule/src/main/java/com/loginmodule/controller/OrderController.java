@@ -8,6 +8,7 @@ import org.apache.commons.mail.EmailException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,11 @@ public class OrderController {
     @PostMapping("/insert")
     public Result insertOrder(@RequestBody Order order){
         log.info("生成订单：{}",order);
+        List<String> nonegoodNames= orderService.checkNum(order);;
+        if(!nonegoodNames.isEmpty()){
+        String error="抱歉，您下单的商品"+Arrays.toString(nonegoodNames.toArray())+"已经售罄，下单失败";
+        return Result.error(error);
+        };
         orderService.insertOrder(order);
         return Result.success(order.getOrderId());
     }

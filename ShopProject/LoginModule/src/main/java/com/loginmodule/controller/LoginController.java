@@ -3,14 +3,11 @@ package com.loginmodule.controller;
 import com.loginmodule.pojo.Result;
 import com.loginmodule.pojo.User;
 import com.loginmodule.service.LoginService;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import utils.JwtUtils;
+import com.loginmodule.utils.JwtUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 @RestController
@@ -51,7 +48,6 @@ public class LoginController {
     @PostMapping("/logout")
     public Result logout() {
         log.info("退出登录");
-
         return Result.success();
     }
 }

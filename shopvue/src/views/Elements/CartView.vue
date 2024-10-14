@@ -1,12 +1,10 @@
 <template>
   <div>
     <!-- 用户个人信息 -->
-  <el-row class="header" type="flex" justify="space-between">
+    <el-row class="header" type="flex" justify="space-between">
       <el-dropdown v-if="userName" @command="handleCommand">
         <span class="el-dropdown-link">
-          用户：{{ userName }} ，您好<i
-            class="el-icon-arrow-down el-icon--right"
-          ></i>
+          用户：{{ userName }} ，您好<i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="display">首页</el-dropdown-item>
@@ -16,71 +14,76 @@
       <span v-else @click="goToLogin">请登录</span>
     </el-row>
 
-    <!-- 商品展示表格 -->
-    <h3>购物车</h3>
-    <el-table :data="cartGoods" style="width: 100%">
-      <!-- 多选框列 -->
-      <el-table-column width="55">
-        <template slot-scope="scope">
-          <el-checkbox
-            @change="handleSelectionChange(scope.row)"
-            :checked="isChecked(scope.row.goodId)"
-            :key="scope.row.goodId"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="goodId"
-        label="商品编号"
-        width="180"
-      ></el-table-column>
-      <el-table-column prop="name" label="名称" width="180"></el-table-column>
-      <el-table-column prop="price" label="价格" width="100"></el-table-column>
-      <el-table-column label="数量" width="150">
-        <template slot-scope="scope">
-          <el-input-number
-            v-model.number="scope.row.cartnum"
-            :min="1"
-            :max="scope.row.num"
-            @change="updateGoodQuantity(scope.row)"
-            class="input-number"
-          ></el-input-number>
-        </template>
-      </el-table-column>
-      <el-table-column prop="image" label="图片" width="120">
-        <template slot-scope="scope">
-          <img
-            :src="scope.row.image"
-            alt="商品图片缺失"
-            width="50"
-            height="50"
-          />
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="shopName"
-        label="商店名"
-        width="120"
-      ></el-table-column>
+    <!-- 卡片容器，包含购物车内容 -->
+    <el-card class="cart-card" shadow="hover">
+      <h2>购物车</h2>
 
-      <!-- 操作列 -->
-      <el-table-column label="操作">
-        <template slot-scope="scope">
-          <el-button
-            @click="deleteGood(scope.row.goodId)"
-            type="danger"
-            size="small"
-            >删除</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table>
+      <!-- 商品展示表格 -->
+      <el-table :data="cartGoods" :cell-style="{ textAlign: 'center' }" :header-cell-style="{textAlign: 'center'}"  class="cart-table">
+        <!-- 多选框列 -->
+        <el-table-column width="55">
+          <template slot-scope="scope">
+            <el-checkbox
+              @change="handleSelectionChange(scope.row)"
+              :checked="isChecked(scope.row.goodId)"
+              :key="scope.row.goodId"
+            />
+          </template>
+        </el-table-column>
 
-    <!-- 合计价格 -->
-    <span>合计：{{ totalPrize }} 元</span>
+        <el-table-column
+          prop="goodId"
+          label="商品编号"
+          width="180"
+        ></el-table-column>
+        <el-table-column prop="name" label="名称" width="180"></el-table-column>
+        <el-table-column prop="price" label="价格" width="100"></el-table-column>
+        <el-table-column label="数量" width="150">
+          <template slot-scope="scope">
+            <el-input-number
+              v-model.number="scope.row.cartnum"
+              :min="1"
+              :max="scope.row.num"
+              @change="updateGoodQuantity(scope.row)"
+              class="input-number"
+            ></el-input-number>
+          </template>
+        </el-table-column>
+        <el-table-column prop="image" label="图片" width="200">
+          <template slot-scope="scope">
+            <img
+              :src="scope.row.image"
+              alt="商品图片缺失"
+              width="150"
+              height="150"
+            />
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="shopName"
+          label="商店名"
+          width="120"
+        ></el-table-column>
 
-    <!-- 结算按钮 -->
-    <el-button type="primary" @click="handleOrder">结算</el-button>
+        <!-- 操作列 -->
+        <el-table-column label="操作" width="100">
+          <template slot-scope="scope">
+            <el-button
+              @click="deleteGood(scope.row.goodId)"
+              type="danger"
+              size="small"
+              >删除</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 合计价格和结算按钮 -->
+      <div class="total-section">
+        <span>合计：{{ totalPrize }} 元</span>
+        <el-button type="primary" @click="handleOrder">结算</el-button>
+      </div>
+    </el-card>
   </div>
 </template>
 
@@ -155,14 +158,14 @@ export default {
         .then((response) => {
           if (response.data && response.data.data && response.data.msg) {
             this.cartGoods = response.data.data;
-            console.log(response.data.data);
           } else {
-            console.log(response.data);
             console.error("未找到购物车商品记录:", response.data);
+            this.$message.error("未找到购物车商品记录")
           }
         })
         .catch((error) => {
           console.error("加载购物车失败:", error);
+          this.$message.error("加载购物车失败:");
         });
     },
     // 删除商品
@@ -189,14 +192,6 @@ export default {
 
     // 更新商品数量
     updateGoodQuantity(good) {
-      console.log(
-        "更新商品数量: ",
-        good.goodId,
-        " 数量: ",
-        good.cartnum,
-        "最大数量:",
-        good.num
-      );
       const token = localStorage.getItem("jwt");
       axios
         .post(
@@ -227,7 +222,6 @@ export default {
         // 否则添加完整的 row 对象到 selectedGoods
         this.selectedGoods.push(row);
       }
-      console.log("选中的商品:", this.selectedGoods);
     },
 
     // 计算合计价格，只计算选中的商品
@@ -235,15 +229,19 @@ export default {
       this.totalPrize = this.selectedGoods.reduce((total, item) => {
         return total + item.price * item.cartnum;
       }, 0);
-      console.log("总价: ", this.totalPrize);
     },
 
     // 结算跳转到订单页面，并传递选中的商品
     handleOrder() {
+       if(this.selectedGoods.length==0){
+        this.$message.error("请选择商品");
+        return;
+      }
       const selectedItems = this.selectedGoods.map((item) => ({
         goodId: item.goodId,
         cartnum: item.cartnum,
       }));
+     
       this.$router.push({
         path: "/addOrder",
         query: {
@@ -270,8 +268,60 @@ export default {
 </script>
 
 <style scoped>
-/* 添加必要的样式 */
+.shopping-page {
+  padding: 20px;
+}
+
+.header {
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+}
+
+.header span {
+  font-size:16px
+}
+/* 调整卡片容器的宽度和上方距离 */
+.cart-card {
+  width: 70%;
+  margin: 40px auto 20px; /* 上方距离为40px，底部距离为20px */
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); /* 增加卡片阴影 */
+}
+
+/* 表格字体大小和边框阴影 */
+.cart-table {
+  width: 80%;
+  border-collapse: collapse; /* 去除表格间的边框 */
+  margin: 0 auto;
+  padding: 0 auto;
+}
+.cart-table .el-table th, .cart-table .el-table td {
+  font-size: 16px;
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ebeef5; /* 添加边框 */
+}
+.cart-table .el-table th {
+  background-color: #f9fafc; /* 表头背景色 */
+}
+
+/* 调整输入框宽度 */
 .input-number {
   width: 95%;
+}
+
+/* 合计和结算部分样式 */
+.total-section {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 16px;
+  padding: 0 20px; /* 增加合计与结算部分与两侧的距离 */
+}
+
+/* 调整按钮和合计之间的间距 */
+.total-section .el-button {
+  margin-left: 20px; /* 结算按钮与合计部分保持合适的距离 */
 }
 </style>

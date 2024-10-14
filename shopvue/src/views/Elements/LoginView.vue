@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     notice() {
-      this.$alert(this.message, "注册失败", {
+      this.$alert(this.message, "登录失败", {
         confirmButtonText: "确定",
       });
     },
@@ -75,10 +75,8 @@ export default {
           "http://localhost:8080/login",
           this.form
         );
-        // console.log(response.data.data.type);
         // 根据用户类型进行重定向
         if (response.data.code == 0) {
-          console.log(response.data.msg);
           this.password = "";
           this.email = "";
           this.message = response.data.msg;
@@ -86,14 +84,10 @@ export default {
         }
         else {
           if (response.data.data.type === 0) {
-            console.log("登录成功", response.data);
             // 存储JWT到本地
             localStorage.setItem("jwt", response.data.data.token);
-            console.log("存储的JWT:", localStorage.getItem("jwt")); // 输出存储的JWT
             this.$router.push("/display"); // 用户类型为0，跳转到展示商品页面
           } else if (response.data.data.type === 1) {
-            console.log("登录成功", response.data);
-            // 存储JWT到本地
             localStorage.setItem("jwt", response.data.data.token);
             this.$router.push("/manageGood");
           } // 用户类型为1，跳转到商店页面

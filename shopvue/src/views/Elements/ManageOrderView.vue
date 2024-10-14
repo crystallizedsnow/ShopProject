@@ -6,7 +6,7 @@
         <span class="el-dropdown-link">
           管理 <i class="el-icon-arrow-down el-icon--right"></i>
         </span>
-        <el-dropdown-menu slot="dropdown">
+        <el-dropdown-menu class="manage-dropdown-menu" slot="dropdown">
           <el-dropdown-item command="good"> 管理商品</el-dropdown-item>
           <el-dropdown-item command="data">管理商店数据</el-dropdown-item>
           <el-dropdown-item command="logout">注销</el-dropdown-item>
@@ -19,12 +19,12 @@
       mode="horizontal"
       @select="filterOrders"
     >
-      <el-menu-item index="5">全部</el-menu-item>
-      <el-menu-item index="0">未付款</el-menu-item>
-      <el-menu-item index="1">已付款</el-menu-item>
-      <el-menu-item index="2">已发货</el-menu-item>
-      <el-menu-item index="3">已收货</el-menu-item>
-      <el-menu-item index="4">已取消</el-menu-item>
+      <el-menu-item index="5"><span class="menu-items">全部</span></el-menu-item>
+      <el-menu-item index="0"><span class="menu-items">未付款</span></el-menu-item>
+      <el-menu-item index="1"><span class="menu-items">已付款</span></el-menu-item>
+      <el-menu-item index="2"><span class="menu-items">已发货</span></el-menu-item>
+      <el-menu-item index="3"><span class="menu-items">已收货</span></el-menu-item>
+      <el-menu-item index="4"><span class="menu-items">已取消</span></el-menu-item>
     </el-menu>
 
     <div v-for="order in orders" :key="order.orderId" class="order-container">
@@ -109,7 +109,6 @@ export default {
           },
         })
         .then((response) => {
-          console.log(response.data.data);
           this.userName = response.data.data.username;
           this.userId = response.data.data.userId;
         })
@@ -156,7 +155,6 @@ export default {
         );
         if (response.data.code === 1) {
           this.orders = response.data.data;
-          //   console.log(this.orders[0].items);
         } else {
           this.$message.error("获取订单失败，请重试！");
         }
@@ -257,10 +255,32 @@ export default {
 </script>
 
 <style scoped>
+.header {
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+}
+.el-dropdown-link {
+  font-size: 18px;
+  font-weight: bold;
+}
+.manage-dropdown-menu {
+  font-size: 18px;
+  font-weight: bold;
+}
 .order-container {
   border: 1px solid #e0e0e0;
   padding: 15px;
   margin-bottom: 10px;
   border-radius: 5px;
+}
+p{
+  font-size:16px;
+}
+.menu-items{
+  font-size:15px;
+}
+.el-table {
+  padding: 10px;
+  font-size: 16px; /* 字体大小调整 */
 }
 </style>

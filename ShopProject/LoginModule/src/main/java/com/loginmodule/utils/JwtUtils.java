@@ -1,4 +1,4 @@
-package utils;
+package com.loginmodule.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwt;

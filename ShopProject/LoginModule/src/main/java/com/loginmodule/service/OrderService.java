@@ -25,4 +25,5 @@ public interface OrderService {
 
     boolean sendEmail(String email,String shopName) throws EmailException;
 
+    List<String> checkNum(Order order);
 }

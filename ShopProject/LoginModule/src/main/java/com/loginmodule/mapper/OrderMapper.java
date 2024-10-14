@@ -49,4 +49,8 @@ public interface OrderMapper {
     String getShopNameByShopId(@Param("shopId") Integer ShopId);
     @Select("select email from user,orders where orderId=#{orderId} and user.userId=orders.userId")
     String selectEmailByuserId(String orderId);
+    @Update("update good set good.num=good.num-#{buyNum} where good.goodId=#{goodId} ")
+    void updateItemNum(@Param("goodId") String goodId,@Param("buyNum") Integer buyNum);
+    @Select("select good.name from good where goodId=#{goodId} and good.num<=0")
+    String selectNoneGoodName(@Param("goodId") String goodId);
 }

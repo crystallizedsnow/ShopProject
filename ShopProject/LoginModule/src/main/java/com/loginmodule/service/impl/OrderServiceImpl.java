@@ -33,10 +33,23 @@ public class OrderServiceImpl implements OrderService {
         OrderItem[] orderItems=order.getOrderItems();
         for(OrderItem orderItem:orderItems){
             orderMapper.insertOrderItem(orderId,orderItem.getGoodId(),orderItem.getBuyNum());
+            orderMapper.updateItemNum(orderItem.getGoodId(),orderItem.getBuyNum());
         }
         for(OrderShop ordershop:orderShops){
             orderMapper.insertOrderShop(orderId,ordershop.getShopId(),ordershop.getTotalMoney());
         }
+    }
+
+    @Override
+    public List<String> checkNum(Order order) {
+        OrderItem[] orderItems=order.getOrderItems();
+        List<String>noneGoodNames=new ArrayList<>();
+        for(OrderItem orderItem:orderItems) {
+            String goodName=orderMapper.selectNoneGoodName(orderItem.getGoodId());
+            if(goodName!=null){
+            noneGoodNames.add(goodName);}
+        }
+        return noneGoodNames;
     }
 
     @Override
@@ -53,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
             shopIds=orderMapper.selectshopByorderId(orderId);
             List<Map<String,Object>>itemsByshop=new ArrayList<>();
             for(Integer shopId:shopIds){
-                Map<String,Object>itemByshop=new HashMap<String, Object>();;
+                Map<String,Object>itemByshop=new HashMap<String, Object>();
                 String shopName=orderMapper.getShopNameByShopId(shopId);
                 itemByshop.put("shopName",shopName);
                 List<Map<String,Object>>items=new ArrayList<>();

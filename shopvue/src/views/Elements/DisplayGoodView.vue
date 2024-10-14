@@ -1,12 +1,10 @@
 <template>
   <div class="shopping-page">
     <!-- 顶部导航栏，显示用户信息和购物车 -->
-    <el-row class="header" type="flex" justify="space-between">
+    <el-row class="header" type="flex" justify="space-between" style="margin-bottom: 40px;">
       <el-dropdown v-if="userName" @command="handleCommand">
         <span class="el-dropdown-link">
-          用户：{{ userName }} ，您好<i
-            class="el-icon-arrow-down el-icon--right"
-          ></i>
+          用户：{{ userName }} ，您好<i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="order">历史订单</el-dropdown-item>
@@ -17,55 +15,56 @@
       <span @click="goToCart">购物车</span>
     </el-row>
 
-    <!-- 搜索栏 -->
-    <el-row class="search-all">
-      <el-select v-model="searchId" placeholder="商品名">
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        >
-        </el-option>
-      </el-select>
-      <div class="search-bar">
-        <el-col :span="15">
-          <el-input
-            v-if="this.searchId == '选项1'"
-            class="textbox"
-            v-model="searchQuery"
-            placeholder="请输入搜索商品名"
-          ></el-input>
-          <el-input
-            v-else
-            class="textbox"
-            v-model="searchShopName"
-            placeholder="请输入搜索商店名"
-          ></el-input>
-        </el-col>
-        <el-col :span="5">
-          <el-button type="primary" icon="el-icon-search" @click="searchGoods"
-            >搜索</el-button
-          >
-        </el-col>
-      </div>
+    <!-- 搜索框 -->
+    <el-row class="search-all" style="margin-bottom: 40px;">
+      <el-col :span="6" class="select-col">
+        <el-select v-model="searchId" placeholder="商品名" class="select-box">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          ></el-option>
+        </el-select>
+      </el-col>
 
-      <el-col :span="3"> 价格范围：</el-col>
+      <el-col :span="10" class="search-bar">
+        <el-input
+          v-if="this.searchId == '选项1'"
+          class="textbox"
+          v-model="searchQuery"
+          placeholder="请输入搜索商品名"
+        ></el-input>
+        <el-input
+          v-else
+          class="textbox"
+          v-model="searchShopName"
+          placeholder="请输入搜索商店名"
+        ></el-input>
+      </el-col>
+
+      <el-col :span="2">
+        <el-button type="primary" icon="el-icon-search" @click="searchGoods">搜索</el-button>
+      </el-col>
+
+      <el-col :span="3" class="price-label"> 价格范围： </el-col>
+
       <el-col :span="1">
         <el-input class="prizebox" v-model="plow"></el-input>
       </el-col>
-      ~
+
+      <el-col :span="1" class="tilde"> 至 </el-col>
+
       <el-col :span="1">
         <el-input class="prizebox" v-model="phigh"></el-input>
       </el-col>
+
       <el-col :span="3">
-        <el-button type="primary" @click="clearAllFilters"
-          >清空所有条件</el-button
-        >
+        <el-button type="primary" @click="clearAllFilters">清空所有条件</el-button>
       </el-col>
     </el-row>
 
-    <!-- 左侧分类栏 -->
+      <!-- 左侧分类栏 -->
     <el-row class="main-content" type="flex">
       <el-col :span="4" class="category-sidebar">
         <el-menu @select="filterByCategory">
@@ -89,10 +88,11 @@
             :span="6"
             @click.native="openInfoDialog(good)"
           >
-            <el-card :body-style="{ padding: '20px' }">
-              <img :src="good.image" class="image" />
-              <div>{{ good.name }}</div>
-              <div>{{ good.price }}元</div>
+            <el-card :body-style="{ padding: '20px', minHeight: '300px' }" class="good-card">
+              <img v-if="good.image" :src="good.image" class="image"  />
+              <div v-else class="empty-image"></div>
+              <div style="margin-top:30px;">{{ good.name }}</div>
+              <div style="margin-buttom:30px;">{{ good.price }}元</div>
             </el-card>
           </el-col>
         </el-row>
@@ -105,23 +105,13 @@
     </el-row>
 
     <!-- 展示详情，购买，加入购物车按钮 -->
-    <el-dialog :visible.sync="infoDialogVisible" title="商品详情" width="50%">
+    <el-dialog :visible.sync="infoDialogVisible" width="50%" class="detailDialog">
+            <template slot="title">
+        <div style="font-size:18px;font-weight: 999">商品详情</div>
+      </template>
       <el-row>
         <div>商品名称: {{ selectedGood.name }}</div>
       </el-row>
-
-      <!-- <el-row v-if="this.detail.types">
-    <span>类型：</span>
-    <el-radio-group v-model="selectedType">
-      <el-radio
-        v-for="type in this.detail.types"
-        :key="type.id"
-        :label="type.id"
-      >{{ type.name }}</el-radio>
-    </el-radio-group>
-  </el-row> -->
-  
-
       <el-row v-if="this.detail.text">
         <span>详情：</span>
         <span>{{ detail.text }}</span>
@@ -139,7 +129,7 @@
       <el-row>
         <span>价格：{{ selectedGood.price }}元</span>
       </el-row>
-      <el-row>
+      <el-row class="button-row">
         <el-button type="primary" @click="handleBuy">立即购买</el-button>
         <el-button type="primary" @click="addCart">加入购物车</el-button>
       </el-row>
@@ -187,17 +177,16 @@ export default {
     this.initialPage();
   },
   methods: {
-   async initialPage() {
-    this.getAllTypes();
-    await this.fetchUserName();
-  },
+    async initialPage() {
+      this.getAllTypes();
+      await this.fetchUserName();
+    },
     // 获取用户名
-   async fetchUserName() {
+    async fetchUserName() {
       const token = localStorage.getItem("jwt"); // 从本地存储中获取JWT
-      console.log("获得jwt:", token);
       if (!token) {
         this.userName = null; // 如果没有JWT，显示“请登录”
-         this.fetchGoods();
+        this.fetchGoods();
       }
 
       axios
@@ -207,16 +196,14 @@ export default {
           },
         })
         .then((response) => {
-          console.log(response);
           this.userName = response.data.data.username;
           this.userId = response.data.data.userId;
-          console.log("userId:", this.userId); 
-           this.fetchGoods();//执行完获取userId再fetchGoods
+          this.fetchGoods(); //执行完获取userId再fetchGoods
         })
         .catch((error) => {
           console.error("未能获取用户信息", error);
           this.userName = null; // 如果获取用户名失败，显示“请登录”
-           this.fetchGoods();
+          this.fetchGoods();
         });
     },
     // 注销
@@ -229,15 +216,15 @@ export default {
     goToOrder() {
       this.$router.push("/showorder");
     },
-        // 跳转到登录页面
+    // 跳转到登录页面
     goToLogin() {
       this.$router.push("/login");
     },
     handleCommand(command) {
-      if (command === 'order') {
+      if (command === "order") {
         this.goToOrder();
-      } else if (command === 'logout') {
-          this.goToLogin();
+      } else if (command === "logout") {
+        this.goToLogin();
       }
     },
     // 跳转购物车
@@ -268,7 +255,6 @@ export default {
     // 获取商品
     fetchGoods() {
       this.loading = true;
-      console.log("userId1:",this.userId);
       axios
         .get("http://localhost:8080/goods", {
           params: {
@@ -279,7 +265,7 @@ export default {
             type: this.type,
             plow: this.plow,
             phigh: this.phigh,
-            userId:this.userId
+            userId: this.userId,
           },
         })
         .then((response) => {
@@ -377,7 +363,6 @@ export default {
           }
         )
         .then((response) => {
-          console.log("商品已加入购物车", response);
           this.infoDialogVisible = false;
           this.$message.success("商品已加入购物车");
         })
@@ -395,48 +380,153 @@ export default {
       this.fetchGoods();
     },
   },
-};//未实现先获得userId,再fetchGoods
+};
 </script>
 
 <style scoped>
 .shopping-page {
   padding: 20px;
 }
+
 .header {
   padding: 10px 20px;
   background-color: #f5f5f5;
 }
 
-.search-bar {
-  margin-left: auto;
-  margin-right: auto;
-  width: 50%;
-  display: flex;
-  justify-content: center; /* 使整个搜索栏水平居中 */
-  align-items: center;
+.header span {
+  font-size:16px
 }
+
 .search-all {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
-  width: 100%;
-  display: flex;
-  justify-content: center; /* 使整个搜索栏水平居中 */
-  align-items: center;
+  margin-bottom: 40px;
 }
+
+.select-col {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 10px;
+}
+
+.select-box {
+  width: 100px;
+}
+
+.search-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+}
+
 .textbox {
   width: 100%;
+}
+
+.price-label {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 17px;
+}
+
+.prizebox {
+  width: 100%;
+  text-align: center;
+}
+
+.tilde {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 17px;
 }
 
 .category-sidebar {
   background-color: #f0f0f0;
   padding: 20px;
 }
+
+.category-sidebar .el-menu-item {
+  font-size: 18px;
+}
+
 .image {
-  width: 100%;
+  width: 300px;
+  height: 300px;
   height: auto;
 }
+
+.empty-image {
+  width: 300px;
+  height: 300px;
+  background-color: #e0e0e0;
+}
+
+.good-card {
+  height: 400px;
+  text-align: center;  
+  display: flex;
+  justify-content: center;
+}
+
 .scroll-loading {
   text-align: center;
   margin-top: 20px;
 }
+
+.detailDialog {
+  width: 50%;
+  margin: 0 auto; /* 确保宽度为50%，并水平居中 */
+}
+
+.detailDialog .el-dialog__wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detailDialog .el-dialog {
+  margin: 0 auto;
+  transform: translateY(-50%); /* 确保垂直居中 */
+  top: 50%; /* 设置顶端为50% */
+}
+
+.detailDialog .el-divider {
+  margin: 3px 0; /* 调整分割线的上、下距离为3px */
+}
+
+.detailDialog .input-number  {
+  width: 125px;
+  height: 40px;
+  line-height: 40px;
+}
+
+.detailDialog .button-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.detailDialog .el-button {
+  font-size: 16px;
+}
+
+.detailDialog .el-row {
+  font-size: 16px;
+}
+
+.detailDialog .el-row:first-child {
+  margin-bottom: 3px; /* 设置商品详情与下面分割线之间的距离为3px */
+}
+
 </style>
+
+
