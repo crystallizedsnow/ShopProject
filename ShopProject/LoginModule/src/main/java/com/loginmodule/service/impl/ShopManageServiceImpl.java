@@ -62,11 +62,11 @@ public class ShopManageServiceImpl implements ShopManageService {
     }
 
     @Override
-    public void insertShop(String userId, String shopName) {
+    public Integer insertShop(Integer userId, String shopName) {
+        shopManageMapper.insertShop(shopName);
         Integer shopId=shopManageMapper.selectShopIdByshopName(shopName);
-        if(shopId==null)
-            shopManageMapper.insertShop(shopName);
         shopManageMapper.updateShopIntoUser(userId,shopId);
+        return shopId;
     }
     @Override
     public PageBean page(Integer page, Integer pageSize, String goodName, Integer type, String shopName, Double plow, Double phigh, Integer userId) {

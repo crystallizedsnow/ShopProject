@@ -23,7 +23,7 @@ public interface ShopManageMapper {
     @Select("select shopId from shop where name=#{shopName}")
     Integer selectShopIdByshopName(String shopName);
     @Insert("update user set shopId=#{shopId} where userId=#{userId}")
-    void updateShopIntoUser(@Param("userId")String userId, @Param("shopId")Integer shopId);
+    void updateShopIntoUser(@Param("userId")Integer userId, @Param("shopId")Integer shopId);
     @Select("select image from good where goodId=#{goodId}")
     String selectUrlbyId(String goodId);
 }

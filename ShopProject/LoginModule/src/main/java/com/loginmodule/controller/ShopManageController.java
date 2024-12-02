@@ -23,12 +23,6 @@ public class ShopManageController {
     private ShopManageService shopManageService;
     @Autowired
     private AliOssUtils aliOssUtils;
-    @PostMapping("/applyShop")
-    public Result insertShop(@RequestParam String userId,@RequestParam String shopName){
-        log.info("user{}插入shop{}",userId,shopName);
-        shopManageService.insertShop(userId,shopName);
-        return Result.success();
-    }
 //    @Log
     //增加商品
     @PostMapping("/insertGood")

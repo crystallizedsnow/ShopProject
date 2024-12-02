@@ -5,9 +5,12 @@
 <mapper namespace="com.loginmodule.mapper.ShopDataMapper">
 
     <select id="selectTotalorderByShopId" resultType="java.util.HashMap">
-        select count(order_shops.orderId) as orderTotalNum from order_shops,orders
+        select count(order_shops.orderId) as orderTotalNum
+        from order_shops
+        join good on good.shopId=order_shops.shopId
+        join orders on orders.orderId=order_shops.orderId
         <where>
-            shopId=#{shopId} and orders.orderId=order_shops.orderId
+            good.shopId=#{shopId}
             <if test="createTimeLow != null and createTimeHigh != null">
                 and createTime Between #{createTimeLow} and #{createTimeHigh}
             </if>
@@ -24,8 +27,9 @@
         select count(orders.orderId) as orderSaleNum,     COALESCE(sum(order_shops.totalMoney), 0)as saleMoney, count(userId) as TotalCustomers
         from order_shops
         join orders on orders.orderId = order_shops.orderId
+        join good on good.shopId=order_shops.shopId
         <where>
-            shopId=#{shopId}
+            good.shopId=#{shopId}
             and orders.state Not In(0, 4)
             <if test="createTimeLow != null and createTimeHigh != null">
                 and createTime Between #{createTimeLow} and #{createTimeHigh}
@@ -43,8 +47,9 @@
         select count(orders.orderId) as orderSuccessNum, sum(order_shops.totalMoney) as orderSuccessMoney
         from order_shops
         join orders on orders.orderId = order_shops.orderId
+        join good on good.shopId=order_shops.shopId
         <where>
-            shopId=#{shopId}
+            good.shopId=#{shopId}
             and orders.state != 4
             <if test="createTimeLow != null and createTimeHigh != null">
                 and createTime Between #{createTimeLow} and #{createTimeHigh}
@@ -65,7 +70,7 @@
         join orders on order_items.orderId = orders.orderId
         join order_shops on order_shops.orderId=orders.orderId
         <where>
-            order_shops.shopId=#{shopId}
+            good.shopId=#{shopId}
             and orders.state != 4
             <if test="createTimeLow != null and createTimeHigh != null">
                 and createTime Between #{createTimeLow} and #{createTimeHigh}

@@ -95,11 +95,26 @@
         <el-table-column prop="goodView" label="删除购物车次数" />
       </el-table>
     </el-card>
+    <el-card>
+  <h4>每月销售额趋势图</h4>
+  <div ref="monthlySalesChart" style="height: 400px;"></div>
+</el-card>
+
+<el-card>
+  <h4>完成销售比例</h4>
+  <div ref="salesRatioChart" style="height: 400px;"></div>
+</el-card>
+
+<el-card>
+  <h4>商品销售排行榜</h4>
+  <div ref="goodsSalesChart" style="height: 400px"></div>
+</el-card>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import * as echarts from "echarts";
 export default {
   data() {
     return {
@@ -129,7 +144,7 @@ export default {
         return;
       }
       await axios
-        .get("http://localhost:8080/getUsernameAndId", {
+        .get("http://8.155.18.88/api/getUsernameAndId", {
           headers: {
             token: token,
           },
@@ -152,7 +167,7 @@ export default {
       }
       try {
         const response = await axios.get(
-          "http://localhost:8080/manageGood/getShop",
+          "http://8.155.18.88/api/manageGood/getShop",
           {
             headers: {
               token: token, // 将 token 作为请求头传递
@@ -185,7 +200,7 @@ export default {
           : null,
       };
       axios
-        .get("http://localhost:8080/shopdata/getsale", {
+        .get("http://8.155.18.88/api/shopdata/getsale", {
           params,
           headers: { token: token },
         })
@@ -193,12 +208,20 @@ export default {
           if (response.data.code === 1) {
             this.salesData = response.data.data;
           }
+             this.$nextTick(() => {
+          this.renderCharts(); // 确保数据加载完成后再渲染图表
         });
+        });
+    },
+     renderCharts() {
+      this.renderMonthlySalesChart();
+      this.renderSalesRatioChart();
+      this.renderGoodsSalesChart();
     },
     fetchUserLogData() {
       const token = localStorage.getItem("jwt"); // 从本地存储中获取JWT
       axios
-        .get("http://localhost:8080/userlog/get?shopId=1", {
+        .get("http://8.155.18.88/api/userlog/get?shopId=1", {
           headers: { token: token },
         })
         .then((response) => {
@@ -227,7 +250,78 @@ export default {
       this.userName = null;
       this.$router.push("/login"); // 路由到登录页面
     },
-  },
+renderMonthlySalesChart() {
+  const chart = echarts.init(this.$refs.monthlySalesChart);
+  const data = this.salesData.monthSaleData;
+
+  chart.setOption({
+    title: { text: "每月销售额和订单数量", left: "center" },
+    tooltip: { trigger: 'axis' },
+    xAxis: { 
+      type: "category", 
+      data: data.map(item => item.Time),  // 使用 Time 字段作为 X 轴标签
+      name: '月份'
+    },
+    yAxis: [
+      { type: "value", name: "销售额 (元)" },
+      { type: "value", name: "订单数量" }
+    ],
+    series: [
+      {
+        name: "销售额",
+        data: data.map(item => item.saleMoney),
+        type: "line",
+        label: { show: true, formatter: "{c}元" },
+        yAxisIndex: 0,  // 使用第一个 y 轴
+      },
+      {
+        name: "订单数量",
+        data: data.map(item => item.orderSaleNum),
+        type: "bar",
+        label: { show: true, formatter: "{c}次" },
+        yAxisIndex: 1,  // 使用第二个 y 轴
+      },
+    ],
+  });
+},
+    renderSalesRatioChart() {
+      const chart = echarts.init(this.$refs.salesRatioChart);
+      const { saleMoney, orderSuccessMoney } = this.salesData;
+      chart.setOption({
+        title: { text: "完成销售比例", left: "center" },
+        series: [
+          {
+            name: "销售金额",
+            type: "pie",
+            radius: "50%",
+            data: [
+              { value: saleMoney, name: `完成销售额 (${(( saleMoney/orderSuccessMoney) * 100).toFixed(2)}%)` },
+              { value:  orderSuccessMoney- saleMoney , name: "取消销售额" },
+            ],
+            label: { formatter: "{b}: {c}元" },
+          },
+        ],
+      });
+    },
+    renderGoodsSalesChart() {
+  const chart = echarts.init(this.$refs.goodsSalesChart);
+  const data = this.salesData.goodsBySale;
+  
+  chart.setOption({
+    title: { text: "本店商品销量", left: "center" },
+    xAxis: { type: "category", data: data.map(item => item.goodName) },
+    yAxis: { type: "value" },
+    series: [
+      {
+        data: data.map(item => item.buyNum),
+        type: "bar",
+        label: { show: true, formatter: "{c}件" },
+        barWidth: 50,  
+      },
+    ],
+  });
+}
+}
 };
 </script>
 <style scoped>

@@ -72,7 +72,7 @@ export default {
 
       try {
         const response = await axios.post(
-          "http://localhost:8080/login",
+          "http://8.155.18.88/api/login",
           this.form
         );
         // 根据用户类型进行重定向

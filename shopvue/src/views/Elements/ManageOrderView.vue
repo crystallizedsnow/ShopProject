@@ -4,7 +4,7 @@
       <span>商店名：{{ shopName }}</span>
       <el-dropdown class="manage-dropdown" @command="handleCommand">
         <span class="el-dropdown-link">
-          管理 <i class="el-icon-arrow-down el-icon--right"></i>
+          菜单 <i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu class="manage-dropdown-menu" slot="dropdown">
           <el-dropdown-item command="good"> 管理商品</el-dropdown-item>
@@ -103,7 +103,7 @@ export default {
       }
 
       await axios
-        .get("http://localhost:8080/getUsernameAndId", {
+        .get("http://8.155.18.88/api/getUsernameAndId", {
           headers: {
             token: token,
           },
@@ -126,7 +126,7 @@ export default {
       }
       try {
         const response = await axios.get(
-          "http://localhost:8080/manageGood/getShop",
+          "http://8.155.18.88/api/manageGood/getShop",
           {
             headers: {
               token: token, // 将 token 作为请求头传递
@@ -148,7 +148,7 @@ export default {
       const token = localStorage.getItem("jwt");
       try {
         const response = await axios.get(
-          `http://localhost:8080/order/getOrderShop?shopId=${this.shopId}`,
+          `http://8.155.18.88/api/order/getOrderShop?shopId=${this.shopId}`,
           {
             headers: { token: token },
           }
@@ -167,7 +167,7 @@ export default {
       const token = localStorage.getItem("jwt");
       try {
         const response = await axios.get(
-          `http://localhost:8080/order/getOrderShop?shopId=${this.shopId}&state=${state}`,
+          `http://8.155.18.88/api/order/getOrderShop?shopId=${this.shopId}&state=${state}`,
           {
             headers: { token: token },
           }
@@ -194,7 +194,7 @@ export default {
       const token = localStorage.getItem("jwt");
       try {
         const response = await axios.post(
-          `http://localhost:8080/order/updateState`,
+          `http://8.155.18.88/api/order/updateState`,
           null,
           {
             headers: { token: token },
@@ -213,7 +213,7 @@ export default {
       }
       try {
         const response = await axios.post(
-          `http://localhost:8080/order/sendEmail`,
+          `http://8.155.18.88/api/order/sendEmail`,
           null,
           {
             headers: { token: token },

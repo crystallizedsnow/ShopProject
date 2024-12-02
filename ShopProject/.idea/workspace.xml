@@ -233,7 +233,41 @@
       <workItem from="1728631340977" duration="5995000" />
       <workItem from="1728712874483" duration="6699000" />
       <workItem from="1728804821521" duration="4236000" />
-      <workItem from="1728885943443" duration="1903000" />
+      <workItem from="1728885943443" duration="2698000" />
+      <workItem from="1728896279826" duration="312000" />
+      <workItem from="1728896667432" duration="2146000" />
+      <workItem from="1728899444238" duration="2313000" />
+      <workItem from="1728962301865" duration="68000" />
+      <workItem from="1728962552867" duration="80000" />
+      <workItem from="1730117448545" duration="3765000" />
+      <workItem from="1730124614605" duration="2586000" />
+      <workItem from="1730127229659" duration="52000" />
+      <workItem from="1730457422446" duration="32000" />
+      <workItem from="1730717950556" duration="261000" />
+      <workItem from="1730718419023" duration="4658000" />
+      <workItem from="1730771093519" duration="20000" />
+      <workItem from="1731411552041" duration="1959000" />
+      <workItem from="1731424815843" duration="1740000" />
+      <workItem from="1731502797243" duration="1537000" />
+      <workItem from="1731745050587" duration="970000" />
+      <workItem from="1731804558215" duration="651000" />
+      <workItem from="1732029499581" duration="940000" />
+      <workItem from="1732112627907" duration="76000" />
+      <workItem from="1732113358967" duration="16000" />
+      <workItem from="1732203573652" duration="3476000" />
+      <workItem from="1732293182642" duration="566000" />
+      <workItem from="1732325609215" duration="32000" />
+      <workItem from="1732458616682" duration="1894000" />
+      <workItem from="1732500855073" duration="2365000" />
+      <workItem from="1732514885686" duration="5898000" />
+      <workItem from="1732522138440" duration="2096000" />
+      <workItem from="1732526598789" duration="5000" />
+      <workItem from="1732533242305" duration="4367000" />
+      <workItem from="1732586462853" duration="3188000" />
+      <workItem from="1732602752433" duration="151000" />
+      <workItem from="1732629429664" duration="2266000" />
+      <workItem from="1732878599710" duration="5222000" />
+      <workItem from="1733106672730" duration="3000" />
     </task>
     <servers />
   </component>
@@ -274,11 +308,6 @@
           <properties class="org.mybatis.spring.MyBatisSystemException" package="org.mybatis.spring" />
           <option name="timeStamp" value="3" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/LoginModule/src/main/java/com/loginmodule/service/impl/OrderServiceImpl.java</url>
-          <line>48</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>

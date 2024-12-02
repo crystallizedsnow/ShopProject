@@ -24,7 +24,7 @@ export default {
         const token = localStorage.getItem("jwt");
       try {
         const response = await axios.post(
-          `http://localhost:8080/order/updateState`,
+          `http://8.155.18.88/api/order/updateState`,
           null,
           {
             headers: { token: token },

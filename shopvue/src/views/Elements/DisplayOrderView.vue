@@ -46,6 +46,13 @@
           </template>
         </el-table-column>
       </el-table>
+       <el-button
+        v-if="order.stateName === '未付款'"
+        type="success"
+        @click="payOrder(order.orderId)"
+      >
+        支付订单
+      </el-button>
       <el-button
         v-if="order.stateName === '未付款'"
         type="danger"
@@ -53,19 +60,19 @@
       >
         取消订单
       </el-button>
-      <el-button
-        v-if="order.stateName === '未付款'"
-        type="success"
-        @click="payOrder(order.orderId)"
-      >
-        支付订单
-      </el-button>
         <el-button
         v-if="order.stateName === '已发货'"
         type="success"
         @click="confirmReceipt(order.orderId)"
       >
         确认收货
+      </el-button>
+          <el-button
+        v-if="order.stateName === '已发货'||order.stateName==='未发货'||order.stateName==='已付款'||order.stateName==='已收货'"
+        type="danger"
+        @click="cancelOrder(order.orderId)"
+      >
+        退款/售后
       </el-button>
     </div>
   </div>
@@ -101,7 +108,7 @@ export default {
       }
       try {
         const response = await axios.get(
-          "http://localhost:8080/getUsernameAndId",
+          "http://8.155.18.88/api/getUsernameAndId",
           {
             headers: { token: token },
           }
@@ -123,7 +130,7 @@ export default {
       const token = localStorage.getItem("jwt");
       try {
         const response = await axios.get(
-          `http://localhost:8080/order/getOrderUser?userId=${this.userId}`,
+          `http://8.155.18.88/api/order/getOrderUser?userId=${this.userId}`,
           {
             headers: { token: token },
           }
@@ -142,7 +149,7 @@ export default {
       const token = localStorage.getItem("jwt");
       try {
         const response = await axios.get(
-          `http://localhost:8080/order/getOrderUser?userId=${this.userId}&state=${state}`,
+          `http://8.155.18.88/api/order/getOrderUser?userId=${this.userId}&state=${state}`,
           {
             headers: { token: token },
           }
@@ -169,7 +176,7 @@ export default {
       const token = localStorage.getItem("jwt");
       try {
         const response = await axios.post(
-          `http://localhost:8080/order/updateState`,
+          `http://8.155.18.88/api/order/updateState`,
           null,
           {
             headers: { token: token },
@@ -191,7 +198,7 @@ export default {
       const token = localStorage.getItem("jwt");
       try {
         const response = await axios.post(
-          `http://localhost:8080/order/updateState`,
+          `http://8.155.18.88/api/order/updateState`,
           null,
           {
             headers: { token: token },
@@ -218,7 +225,7 @@ export default {
       const token = localStorage.getItem("jwt");
       try {
         const response = await axios.post(
-          `http://localhost:8080/order/updateState`,
+          `http://8.155.18.88/api/order/updateState`,
           null,
           {
             headers: { token: token },

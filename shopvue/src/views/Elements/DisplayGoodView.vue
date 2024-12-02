@@ -1,14 +1,22 @@
 <template>
   <div class="shopping-page">
     <!-- 顶部导航栏，显示用户信息和购物车 -->
-    <el-row class="header" type="flex" justify="space-between" style="margin-bottom: 40px;">
+    <el-row
+      class="header"
+      type="flex"
+      justify="space-between"
+      style="margin-bottom: 40px"
+    >
       <el-dropdown v-if="userName" @command="handleCommand">
         <span class="el-dropdown-link">
-          用户：{{ userName }} ，您好<i class="el-icon-arrow-down el-icon--right"></i>
+          用户：{{ userName }} ，您好<i
+            class="el-icon-arrow-down el-icon--right"
+          ></i>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="order">历史订单</el-dropdown-item>
           <el-dropdown-item command="logout">注销</el-dropdown-item>
+           <el-dropdown-item command="cart">购物车</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <span v-else @click="goToLogin">请登录</span>
@@ -16,7 +24,7 @@
     </el-row>
 
     <!-- 搜索框 -->
-    <el-row class="search-all" style="margin-bottom: 40px;">
+    <el-row class="search-all" style="margin-bottom: 40px">
       <el-col :span="6" class="select-col">
         <el-select v-model="searchId" placeholder="商品名" class="select-box">
           <el-option
@@ -44,7 +52,9 @@
       </el-col>
 
       <el-col :span="2">
-        <el-button type="primary" icon="el-icon-search" @click="searchGoods">搜索</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="searchGoods"
+          >搜索</el-button
+        >
       </el-col>
 
       <el-col :span="3" class="price-label"> 价格范围： </el-col>
@@ -60,11 +70,13 @@
       </el-col>
 
       <el-col :span="3">
-        <el-button type="primary" @click="clearAllFilters">清空所有条件</el-button>
+        <el-button type="primary" @click="clearAllFilters"
+          >清空所有条件</el-button
+        >
       </el-col>
     </el-row>
 
-      <!-- 左侧分类栏 -->
+    <!-- 左侧分类栏 -->
     <el-row class="main-content" type="flex">
       <el-col :span="4" class="category-sidebar">
         <el-menu @select="filterByCategory">
@@ -88,11 +100,14 @@
             :span="6"
             @click.native="openInfoDialog(good)"
           >
-            <el-card :body-style="{ padding: '20px', minHeight: '300px' }" class="good-card">
-              <img v-if="good.image" :src="good.image" class="image"  />
+            <el-card
+              :body-style="{ padding: '20px', minHeight: '300px' }"
+              class="good-card"
+            >
+              <img v-if="good.image" :src="good.image" class="image" />
               <div v-else class="empty-image"></div>
-              <div style="margin-top:30px;">{{ good.name }}</div>
-              <div style="margin-buttom:30px;">{{ good.price }}元</div>
+              <div style="margin-top: 30px">{{ good.name }}</div>
+              <div style="margin-buttom: 30px">{{ good.price }}元</div>
             </el-card>
           </el-col>
         </el-row>
@@ -105,9 +120,13 @@
     </el-row>
 
     <!-- 展示详情，购买，加入购物车按钮 -->
-    <el-dialog :visible.sync="infoDialogVisible" width="50%" class="detailDialog">
-            <template slot="title">
-        <div style="font-size:18px;font-weight: 999">商品详情</div>
+    <el-dialog
+      :visible.sync="infoDialogVisible"
+      width="50%"
+      class="detailDialog"
+    >
+      <template slot="title">
+        <div style="font-size: 18px; font-weight: 999">商品详情</div>
       </template>
       <el-row>
         <div>商品名称: {{ selectedGood.name }}</div>
@@ -186,11 +205,10 @@ export default {
       const token = localStorage.getItem("jwt"); // 从本地存储中获取JWT
       if (!token) {
         this.userName = null; // 如果没有JWT，显示“请登录”
-        this.fetchGoods();
       }
 
       axios
-        .get("http://localhost:8080/getUsernameAndId", {
+        .get("http://8.155.18.88/api/getUsernameAndId", {
           headers: {
             token: token, // 将 token 作为请求头传递
           },
@@ -225,6 +243,8 @@ export default {
         this.goToOrder();
       } else if (command === "logout") {
         this.goToLogin();
+      }else if(command==="cart"){
+        this.goToCart();
       }
     },
     // 跳转购物车
@@ -256,7 +276,7 @@ export default {
     fetchGoods() {
       this.loading = true;
       axios
-        .get("http://localhost:8080/goods", {
+        .get("http://8.155.18.88/api/goods", {
           params: {
             page: this.page,
             pageSize: this.pageSize,
@@ -274,6 +294,7 @@ export default {
           } else {
             console.error("未找到记录:", response.data);
             // 处理没有记录的情况，例如提示用户
+            this.$message.error("未找到记录");
           }
           this.loading = false;
         });
@@ -290,7 +311,7 @@ export default {
       this.loading = true;
       try {
         const response = await axios.get(
-          "http://localhost:8080/getTypeName/all"
+          "http://8.155.18.88/api/getTypeName/all"
         );
         if (response.data && response.data.data) {
           this.types = response.data.data;
@@ -313,43 +334,60 @@ export default {
     },
     // 加载商品详情
     loadProductDetails(goodId) {
-      const token = localStorage.getItem("jwt");
-      axios
-        .get(`http://localhost:8080/getDetail`, {
-          header: {
-            token: token,
-          },
-          params: {
-            goodId: goodId,
-          },
-        })
-        .then((response) => {
-          if (response.data && response.data.data) {
-            this.detail = response.data.data; // 更新商品详情
-          } else {
-            console.error("无法加载商品详情");
-          }
-        })
-        .catch((error) => {
-          console.error("加载商品详情失败", error);
-        });
+      // const token = localStorage.getItem("jwt");
+      // axios
+      //   .get(`http://8.155.18.88/api/getDetail`, {
+      //     header: {
+      //       token: token,
+      //     },
+      //     params: {
+      //       goodId: goodId,
+      //     },
+      //   })
+      //   .then((response) => {
+      //     if (response.data && response.data.data) {
+      //       this.detail = response.data.data; // 更新商品详情
+      //     } else {
+      //       console.error("无法加载商品详情");
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     console.error("加载商品详情失败", error);
+      //   });
     },
     // 立即购买
     handleBuy() {
-      const orderDetails = {
-        userId: this.userId,
-        goodId: this.selectedGood.id,
-        buyNum: this.buyNum,
-        // typeId: this.selectedType,
-      };
-      this.$router.push({ path: "/order", query: orderDetails });
+      if (this.userName == null) {
+        this.$message.error("请先登录");
+        this.$router.push("/login");
+        return;
+      }
+
+      const orderDetails = [
+        {
+          goodId: this.selectedGood.goodId,
+          cartnum: this.buyNum,
+        },
+      ];
+      // 跳转到订单页面，并将商品数据作为查询参数传递
+      this.$router.push({
+        path: "/addOrder",
+        query: {
+          goods: JSON.stringify(orderDetails), // 商品数据传递
+        },
+      });
     },
     // 加入购物车
     addCart() {
       const token = localStorage.getItem("jwt");
+      if (this.userName == null) {
+        this.$message.error("请先登录");
+        this.$router.push("/login");
+        return;
+      }
       axios
         .post(
-          "http://localhost:8080/cart/insert",
+          "http://8.155.18.88/api/cart/insert",
           {
             userId: this.userId,
             goodId: this.selectedGood.goodId,
@@ -394,7 +432,7 @@ export default {
 }
 
 .header span {
-  font-size:16px
+  font-size: 16px;
 }
 
 .search-all {
@@ -460,7 +498,6 @@ export default {
 .image {
   width: 300px;
   height: 300px;
-  height: auto;
 }
 
 .empty-image {
@@ -471,7 +508,7 @@ export default {
 
 .good-card {
   height: 400px;
-  text-align: center;  
+  text-align: center;
   display: flex;
   justify-content: center;
 }
@@ -502,7 +539,7 @@ export default {
   margin: 3px 0; /* 调整分割线的上、下距离为3px */
 }
 
-.detailDialog .input-number  {
+.detailDialog .input-number {
   width: 125px;
   height: 40px;
   line-height: 40px;
@@ -526,7 +563,6 @@ export default {
 .detailDialog .el-row:first-child {
   margin-bottom: 3px; /* 设置商品详情与下面分割线之间的距离为3px */
 }
-
 </style>
 
 

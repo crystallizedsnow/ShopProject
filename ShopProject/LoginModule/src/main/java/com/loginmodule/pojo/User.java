@@ -13,5 +13,5 @@ public class User {
     private String password;//密码
     private String email;//邮箱
     private int type;//客户账号0，商家账号1
-    private String shop_id;//商家账号绑定商家
+    private Integer shop_id;//商家账号绑定商家
 }

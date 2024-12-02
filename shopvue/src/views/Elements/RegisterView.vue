@@ -22,6 +22,12 @@
             <el-radio label="我是商家"></el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item v-if="form.type === '我是商家'" label="商店名">
+          <el-input
+            v-model="form.shopName"
+            placeholder="请输入商店名"
+          ></el-input>
+        </el-form-item>
         <div class="button-container">
           <el-button type="success" @click="handleRegister">注册</el-button>
         </div>
@@ -44,68 +50,84 @@ export default {
         email: "",
         username: "",
         password: "",
-        shopId:"",
+        shopId: "",
         type: "0",
-        existShop:"0"
+        existShop: "0",
+        shopName: "", // 商店名
       },
-        flag:true,
-        message:"",
+      flag: true,
+      message: "",
     };
   },
- methods: {
+  methods: {
     notice() {
-      this.$alert(this.message, '注册失败', {
-        confirmButtonText: '确定',
+      this.$alert(this.message, "注册失败", {
+        confirmButtonText: "确定",
       });
     },
-    
+
     check() {
       this.flag = true;
-      var ePattern = /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
-      if (this.form.email === "" || this.form.username === "" || this.form.password === "") {
+      var ePattern =
+        /^([A-Za-z0-9_\-\.])+\@([A-Za-z0-9_\-\.])+\.([A-Za-z]{2,4})$/;
+      if (
+        this.form.email === "" ||
+        this.form.username === "" ||
+        this.form.password === ""
+      ) {
         this.message = "信息没填写完整";
-        this.notice(); 
-        this.flag = false; 
-      }
-      else if(!ePattern.test(this.form.email)){
+        this.notice();
+        this.flag = false;
+      } else if (!ePattern.test(this.form.email)) {
         this.$message.warning("邮箱格式不对");
-        this.flag=false;
-      }
-      else if (this.form.type === "我是用户") {
+        this.flag = false;
+      } else if (this.form.type === "我是用户") {
         this.form.type = "0";
       } else if (this.form.type === "我是商家") {
         this.form.type = "1";
+          if (!this.form.shopName) {
+      this.message = "商店名不能为空";
+      this.notice();
+      this.flag = false;
+      return;
+    }
       } else {
         this.message = "请选择您是用户还是商家。";
-        this.notice(); 
+        this.notice();
         this.flag = false;
       }
     },
-    
-    async handleRegister() {
-      this.check();
-      
-      if (this.flag === true) {
-        try {
-          const response = await axios.post(
-            "http://localhost:8080/register",
-            this.form,
-            {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          this.$message.success("注册成功,请登录");
-        } catch (error) {
-          console.error("注册失败", error);
-          this.message = "注册失败，请重试"; 
-          this.notice(); 
-        }
-      }
-    },
-  },
 
+    async handleRegister() {
+  this.check();
+
+  if (this.flag === true) {
+    try {
+      // 提取商店名
+      const { shopName, ...userInfo } = this.form;
+
+      // 如果类型为商家并且商店名不为空，传递商店名
+      const shopParam = this.form.type === "1" && shopName ? `?shopName=${encodeURIComponent(shopName)}` : "";
+
+      const response = await axios.post(
+        `http://8.155.18.88/api/register${shopParam}`, // 拼接 shopName 参数
+        userInfo, // 其余数据作为 JSON 请求体
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      this.$message.success("注册成功,请登录");
+      this.$router.push("/login");  
+    } catch (error) {
+      console.error("注册失败", error);
+      this.message = "注册失败，请重试";
+      this.notice();
+    }
+  }
+},
+  },
 };
 </script>
 

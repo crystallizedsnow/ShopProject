@@ -1,8 +1,11 @@
 package com.loginmodule.controller;
 
+import com.loginmodule.mapper.LoginMapper;
+import com.loginmodule.mapper.ShopManageMapper;
 import com.loginmodule.pojo.Result;
 import com.loginmodule.pojo.User;
 import com.loginmodule.service.LoginService;
+import com.loginmodule.service.ShopManageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +18,12 @@ import java.util.Map;
 public class LoginController {
     @Autowired
     private LoginService loginService;
+    @Autowired
+    private ShopManageService shopManageService;
+    @Autowired
+    private ShopManageMapper shopManageMapper;
+    @Autowired
+    private LoginMapper loginMapper;
     @PostMapping("/login")
     public Result login(@RequestBody User user){
         log.info("登录{}",user);
@@ -35,9 +44,22 @@ public class LoginController {
         return u != null ?Result.success():Result.error("用户名或密码错误");
     }
     @PostMapping("/register")
-    public Result register(@RequestBody User user){
+    public Result register(@RequestBody User user,@RequestParam(required = false)String shopName){
         log.info("注册{}",user);
-        boolean flag= loginService.register(user);
+        boolean flag =false;
+        if(user.getType()==0) {
+           flag=loginService.register(user);
+        }
+        else{
+            Integer shopId=shopManageMapper.selectShopIdByshopName(shopName);
+            if(shopId!=null){
+                return Result.error("该商店名已被占用");
+            }
+            flag=loginService.register(user);
+            user=loginMapper.getByemail(user);
+            log.info("user{}插入shop{}", user.getUserId(), shopName);
+            shopManageService.insertShop(user.getUserId(),shopName);
+        }
         if(flag) {
             return Result.success("成功注册，请登录");
         }

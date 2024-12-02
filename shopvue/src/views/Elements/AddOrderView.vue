@@ -183,7 +183,7 @@ export default {
       const token = localStorage.getItem("jwt");
       // 调用后端接口生成订单
       axios
-        .post("http://localhost:8080/order/insert", order, {
+        .post("http://8.155.18.88/api/order/insert", order, {
           headers: {
             token: token,
           },
@@ -215,7 +215,7 @@ export default {
       }
       try {
         const response = await axios.get(
-          "http://localhost:8080/getUsernameAndId",
+          "http://8.155.18.88/api/getUsernameAndId",
           {
             headers: { token: token },
           }
@@ -237,7 +237,7 @@ export default {
       const token = localStorage.getItem("jwt");
       try {
         const response = await axios.get(
-          "http://localhost:8080/getGoodsByIds",
+          "http://8.155.18.88/api/getGoodsByIds",
           {
             headers: {
               token: token,
@@ -272,11 +272,18 @@ export default {
         console.error("加载商品信息时出错:", error);
       }
     },
+     handleCommand(command) {
+      if (command === 'display') {
+        this.goToDisplay();
+      } else if (command === 'logout') {
+        this.goToLogin();
+      }
+    },
     goToLogin() {
       this.$router.push("/login");
     },
 
-    gotoDisplay() {
+    goToDisplay() {
       this.$router.push("/display");
     },
   },

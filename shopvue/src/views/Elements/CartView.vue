@@ -125,7 +125,7 @@ export default {
       }
       try {
         const response = await axios.get(
-          "http://localhost:8080/getUsernameAndId",
+          "http://8.155.18.88/api/getUsernameAndId",
           {
             headers: { token: token },
           }
@@ -151,7 +151,7 @@ export default {
     loadCartGoods() {
       const token = localStorage.getItem("jwt");
       axios
-        .get("http://localhost:8080/cart/getGoods", {
+        .get("http://8.155.18.88/api/cart/getGoods", {
           headers: { token: token },
           params: { userId: this.userId }, // 确保 userId 已经赋值
         })
@@ -173,7 +173,7 @@ export default {
       const token = localStorage.getItem("jwt");
       try {
         const response = await axios.delete(
-          "http://localhost:8080/cart/delete",
+          "http://8.155.18.88/api/cart/delete",
           {
             headers: { token: token },
             params: { goodId: goodId, userId: this.userId },
@@ -195,7 +195,7 @@ export default {
       const token = localStorage.getItem("jwt");
       axios
         .post(
-          "http://localhost:8080/cart/updateNum",
+          "http://8.155.18.88/api/cart/updateNum",
           { goodId: good.goodId, num: good.cartnum, userId: this.userId },
           { headers: { token: token } }
         )

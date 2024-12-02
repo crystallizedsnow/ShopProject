@@ -172,7 +172,7 @@ export default {
       }
 
       await axios
-        .get("http://localhost:8080/getUsernameAndId", {
+        .get("http://8.155.18.88/api/getUsernameAndId", {
           headers: {
             token: token,
           },
@@ -195,7 +195,7 @@ export default {
       }
       try {
         const response = await axios.get(
-          "http://localhost:8080/manageGood/getShop",
+          "http://8.155.18.88/api/manageGood/getShop",
           {
             headers: {
               token: token, // 将 token 作为请求头传递
@@ -220,7 +220,7 @@ export default {
       this.clearGoods();
       try {
         const response = await axios.get(
-          "http://localhost:8080/manageGood/goods",
+          "http://8.155.18.88/api/manageGood/goods",
           {
             params: {
               shopName: this.shopName,
@@ -257,7 +257,7 @@ export default {
       this.loading = true;
       try {
         const response = await axios.get(
-          "http://localhost:8080/getTypeName/all"
+          "http://8.155.18.88/api/getTypeName/all"
         );
         if (response.data && response.data.data) {
           this.types = response.data.data;
@@ -322,7 +322,7 @@ export default {
 
         try {
           const uploadResponse = await axios.post(
-            "http://localhost:8080/manageGood/uploadImage",
+            "http://8.155.18.88/api/manageGood/uploadImage",
             formData,
             {
               headers: {
@@ -366,13 +366,13 @@ export default {
 
       if (this.form.id) {
         response = await axios.post(
-          "http://localhost:8080/manageGood/updateGood",
+          "http://8.155.18.88/api/manageGood/updateGood",
           this.form,
           config
         );
       } else {
         response = await axios.post(
-          "http://localhost:8080/manageGood/insertGood",
+          "http://8.155.18.88/api/manageGood/insertGood",
           this.form,
           config
         );
@@ -399,7 +399,7 @@ export default {
 
       try {
         const response = await axios.delete(
-          "http://localhost:8080/manageGood/deleteGood",
+          "http://8.155.18.88/api/manageGood/deleteGood",
           config
         );
         if (response.data.code) {

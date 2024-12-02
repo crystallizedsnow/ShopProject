@@ -15,5 +15,4 @@ public interface ShopDataMapper {
     Map<String,Object> selectSaleOrderByShopId(@Param("shopId") Integer shopId,@Param("createTimeLow") LocalDateTime createTimeLow,@Param("createTimeHigh") LocalDateTime createTimeHigh);//成交订单（总销售额，订单总数）
     Map<String,Object> selectSuccessOrderByShopId(@Param("shopId") Integer shopId,@Param("createTimeLow") LocalDateTime createTimeLow,@Param("createTimeHigh") LocalDateTime createTimeHigh);//成功订单（算退款率）
     List<Map<String,Object>>selectGoodBySale(@Param("shopId") Integer shopId,@Param("createTimeLow") LocalDateTime createTimeLow,@Param("createTimeHigh") LocalDateTime createTimeHigh);//商品销量
-
 }

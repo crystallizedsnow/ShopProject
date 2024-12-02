@@ -16,7 +16,7 @@ public interface ShopManageService {
 
     Shop getShop(String userName);
 
-    void insertShop(String userId, String shopName);
+    Integer insertShop(Integer userId, String shopName);
 
     PageBean page(Integer page, Integer pageSize, String goodName, Integer type, String shopName, Double plow, Double phigh, Integer userId);
 }
