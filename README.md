@@ -35,7 +35,7 @@
 - 启动 Spring Boot 应用: `mvn spring-boot:run`
 
 ### 前端
-- 进入 `shopVue/` 目录。
+- 进入 `shopvue/` 目录。
 - 安装依赖: `npm install`
 - 启动前端服务器: `npm run serve`
 
@@ -78,7 +78,7 @@ A front-end and back-end separated e-commerce platform built with **Vue 2**, **S
 - Run Spring Boot app: `mvn spring-boot:run`
 
 ### Frontend
-- Navigate to `frontend/` directory.
+- Navigate to `shopvue/` directory.
 - Install dependencies: `npm install`
 - Start the server: `npm run serve`
 
