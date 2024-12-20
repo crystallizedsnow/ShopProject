@@ -1,10 +1,12 @@
 package com.loginmodule.controller;
 
+import com.loginmodule.pojo.EmailMessage;
 import com.loginmodule.pojo.Order;
 import com.loginmodule.pojo.Result;
 import com.loginmodule.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.mail.EmailException;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,16 +20,12 @@ import java.util.Map;
 public class OrderController {
     @Autowired
     OrderService orderService;
+    @Autowired
+    RabbitTemplate rabbitTemplate;
     @PostMapping("/insert")
     public Result insertOrder(@RequestBody Order order){
         log.info("生成订单：{}",order);
-        List<String> nonegoodNames= orderService.checkNum(order);;
-        if(!nonegoodNames.isEmpty()){
-        String error="抱歉，您下单的商品"+Arrays.toString(nonegoodNames.toArray())+"已经售罄，下单失败";
-        return Result.error(error);
-        };
-        orderService.insertOrder(order);
-        return Result.success(order.getOrderId());
+        return orderService.insertOrder(order);
     }
     @PostMapping("/updateState")
     public Result updateState(@RequestParam String orderId,@RequestParam Integer state) {
@@ -48,13 +46,20 @@ public class OrderController {
         return Result.success(orders);
     }
     @PostMapping("/sendEmail")
-    public Result sendEmail(@RequestParam String orderId,@RequestParam String shopName) throws EmailException {
-        String email=orderService.findEmail(orderId);
-        if(orderService.sendEmail(email,shopName)) {
-            return Result.success();
-        }
-        else{
-            return Result.error("未能成功发送邮件");
+    public Result sendEmail(@RequestParam String orderId, @RequestParam String shopName) {
+        // 将发送邮件的请求通过消息队列异步处理
+        try {
+            // 发送消息到RabbitMQ队列，处理邮件发送
+            //设置开启Mandatory,才能触发回调函数,无论消息推送结果怎么样都强制调用回调函数
+            rabbitTemplate.setMandatory(true);
+            rabbitTemplate.convertAndSend("orderExchange", "order.sendEmail", new EmailMessage(orderId, shopName), message -> {
+                message.getMessageProperties().setReplyTo("responseQueue"); // 设置回复队列
+                return message;
+            });
+            return Result.success("邮件发送请求已提交，正在异步处理...");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("邮件发送失败");
         }
     }
 }

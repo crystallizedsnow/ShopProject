@@ -8,11 +8,14 @@ import com.loginmodule.service.LoginService;
 import com.loginmodule.service.ShopManageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import com.loginmodule.utils.JwtUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 @RestController
 @Slf4j
 public class LoginController {
@@ -24,6 +27,8 @@ public class LoginController {
     private ShopManageMapper shopManageMapper;
     @Autowired
     private LoginMapper loginMapper;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
     @PostMapping("/login")
     public Result login(@RequestBody User user){
         log.info("登录{}",user);
@@ -39,6 +44,8 @@ public class LoginController {
             Map<String, Object> data = new HashMap<>();
             data.put("token", jwt);
             data.put("type", type);
+            // 将JWT存储到Redis，设置过期时间（例如：1小时）
+            redisTemplate.opsForValue().set("JWT:" + jwt, u.getUserId().toString(), 1, TimeUnit.HOURS);
             return Result.success(data);
         }
         return u != null ?Result.success():Result.error("用户名或密码错误");

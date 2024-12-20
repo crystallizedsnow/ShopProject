@@ -20,4 +20,11 @@
             </if>
         </where>
     </select>
+    <insert id="batchInsertUserLogs">
+        INSERT INTO user_log (userId, goodId, action, createTime)
+        VALUES
+        <foreach collection="userLogs" item="log" separator=",">
+            (#{log.userId}, #{log.goodId}, #{log.action}, #{log.createTime})
+        </foreach>
+    </insert>
 </mapper>

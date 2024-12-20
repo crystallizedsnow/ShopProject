@@ -4,40 +4,76 @@ import com.loginmodule.mapper.OrderMapper;
 import com.loginmodule.pojo.Order;
 import com.loginmodule.pojo.OrderItem;
 import com.loginmodule.pojo.OrderShop;
+import com.loginmodule.pojo.Result;
 import com.loginmodule.service.OrderService;
+import com.loginmodule.utils.RedisLock;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class OrderServiceImpl implements OrderService {
     @Autowired
     OrderMapper orderMapper;
-
+    @Autowired
+    RedisLock redisLock;
     @Override
-    public void insertOrder(Order order) {
+    public Result insertOrder(Order order) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSSS");
         String orderId = sdf.format(System.currentTimeMillis());
         order.setOrderId(orderId);
         order.setCreateTime(LocalDateTime.now());
-        orderMapper.insert(order);
-        OrderShop[]orderShops=order.getOrderShops();
-        OrderItem[] orderItems=order.getOrderItems();
-        for(OrderItem orderItem:orderItems){
-            orderMapper.insertOrderItem(orderId,orderItem.getGoodId(),orderItem.getBuyNum());
-            orderMapper.updateItemNum(orderItem.getGoodId(),orderItem.getBuyNum());
+
+        // 使用Redis锁来避免并发冲突
+        String lockKey = "orderLock:" + orderId; // 锁的key，防止多次锁定同一个订单
+        String lockValue = String.valueOf(System.currentTimeMillis()); // 锁的值，确保解锁时只有获得该锁的线程才能解锁
+        boolean lockAcquired = redisLock.lock(lockKey, lockValue,100);
+        if (!lockAcquired) {
+            return Result.error("访问过于频繁，请重试");
         }
-        for(OrderShop ordershop:orderShops){
-            orderMapper.insertOrderShop(orderId,ordershop.getShopId(),ordershop.getTotalMoney());
+        try{
+            List<String> nonegoodNames= checkNum(order);
+            if(!nonegoodNames.isEmpty()){
+                String error="抱歉，您下单的商品"+ Arrays.toString(nonegoodNames.toArray())+"已经售罄，下单失败";
+                return Result.error(error);
+            }
+
+            OrderShop[]orderShops=order.getOrderShops();
+            OrderItem[] orderItems=order.getOrderItems();
+            for (OrderItem orderItem : orderItems) {
+                // 为每个商品设置独立的锁，避免并发操作库存
+                String goodLockKey = "goodLock:" + orderItem.getGoodId();  // 锁住商品的库存
+                String goodLockValue = String.valueOf(System.currentTimeMillis());
+                boolean goodLockAcquired = redisLock.lock(goodLockKey, goodLockValue, 100);  // 锁住当前商品
+
+                if (!goodLockAcquired) {
+                    return Result.error("操作过于频繁，请稍后重试");  // 如果商品锁没有获取到，说明库存正在更新
+                }
+
+                try {
+                    orderMapper.insert(order);
+                    // 进行订单商品插入及库存更新
+                    orderMapper.insertOrderItem(orderId, orderItem.getGoodId(), orderItem.getBuyNum());
+                    orderMapper.updateItemNum(orderItem.getGoodId(), orderItem.getBuyNum());
+                } finally {
+                    redisLock.unlock(goodLockKey, goodLockValue);
+                }
+            }
+            // 释放商品锁
+            for(OrderShop ordershop:orderShops){
+                orderMapper.insertOrderShop(orderId,ordershop.getShopId(),ordershop.getTotalMoney());
+            }
+        }finally {
+            // 释放锁
+            redisLock.unlock(lockKey, lockValue);
         }
+        return Result.success(order.getOrderId());
     }
 
     @Override
@@ -93,24 +129,6 @@ public class OrderServiceImpl implements OrderService {
         }
         return orders;
     }
-    @Override
-    public String findEmail(String orderId) {
-        return orderMapper.selectEmailByuserId(orderId);
-    }
 
-    @Override
-    public boolean sendEmail(String emailUrl, String shopName) throws EmailException {
-        HtmlEmail email = new HtmlEmail(); // 创建对象
-        email.setCharset("utf-8"); // 字符类型
-        email.setHostName("smtp.qq.com"); // 邮箱的SMTP服务器地址
-        email.setSmtpPort(465); // 配置端口号为465
-        email.setSSLOnConnect(true); // 启用SSL
-        email.setAuthentication("2511275284@qq.com", "gamuwuiltwofdjdi"); // 发件人邮箱;密码(授权码)
-        email.setFrom("2511275284@qq.com", "购物系统客服");
-        email.addTo(emailUrl); // 收件人邮箱
-        email.setSubject("购物网站订单发货通知"); // 邮件标题
-        email.setMsg("亲，您在" + shopName + "购买的商品发货啦!"); // 邮件内容
-        email.send(); // 发送邮件
-        return true;
-    }
+
 }

@@ -10,4 +10,6 @@ import java.util.Map;
 @Service
 public interface UserLogService {
     Map<String, Object> getUserLog(Integer shopId,LocalDateTime createTimeLow,LocalDateTime createTimeHigh);
+    public void batchInsertLogs();
+    public void recordUserLog(Integer userId, String goodId, Integer type, LocalDateTime time);
 }

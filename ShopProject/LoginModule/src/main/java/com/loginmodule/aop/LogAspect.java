@@ -9,9 +9,11 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import com.loginmodule.utils.JwtUtils;
 
+import javax.naming.AuthenticationException;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -25,14 +27,29 @@ public class LogAspect {
     private HttpServletRequest request;//拿令牌
     @Autowired
     private OperateLogMapper operateLogMapper;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
     @Around("@annotation(com.loginmodule.anno.Log)")//环绕通知
     public Object recordLog(ProceedingJoinPoint joinPoint) throws Throwable {
         //插入记录
         String jwt=request.getHeader("token");
         Integer operateUser=null;
-        if(jwt!=null) {
-            Claims claims = JwtUtils.parseJWT(jwt);
-            operateUser = (Integer) claims.get("userId");
+//        if(jwt!=null) {
+//            Claims claims = JwtUtils.parseJWT(jwt);
+//            operateUser = (Integer) claims.get("userId");
+//        }
+        if (jwt != null) {
+            // 检查Redis中是否存在JWT
+            String userIdFromRedis = redisTemplate.opsForValue().get("JWT:" + jwt);
+
+            if (userIdFromRedis != null) {
+                // 如果JWT有效，解析并获取用户信息
+                Claims claims = JwtUtils.parseJWT(jwt);
+                operateUser = (Integer) claims.get("userId");
+            } else {
+                // JWT无效，可能已经过期或不存在
+                throw new AuthenticationException("Token is invalid or expired");
+            }
         }
         LocalDateTime operateTime=LocalDateTime.now();
         String className=joinPoint.getTarget().getClass().getName();

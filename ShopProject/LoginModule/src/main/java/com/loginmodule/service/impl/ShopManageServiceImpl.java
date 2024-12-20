@@ -9,9 +9,11 @@ import com.loginmodule.mapper.DisplayMapper;
 import com.loginmodule.mapper.ShopManageMapper;
 import com.loginmodule.pojo.Good;
 import com.loginmodule.pojo.PageBean;
+import com.loginmodule.pojo.Result;
 import com.loginmodule.pojo.Shop;
 import com.loginmodule.service.ShopManageService;
 import com.loginmodule.utils.AliOssUtils;
+import com.loginmodule.utils.RedisLock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,12 +29,15 @@ public class ShopManageServiceImpl implements ShopManageService {
     private DisplayMapper displayMapper;
     @Autowired
     private AliOssUtils aliOssUtils;
+    @Autowired
+    private RedisLock redisLock;
     @Override
     public boolean insertGood(Good good) {
         if(shopManageMapper.selectByGoodIdAndName(good)==null) {
             /**
              * 根据时间戳生成唯一id(处理不了太高并发量）
              */
+
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSSS");
             String id = sdf.format(System.currentTimeMillis());
             System.out.println("id:"+id);
@@ -45,15 +50,37 @@ public class ShopManageServiceImpl implements ShopManageService {
     }
 
     @Override
-    public void deleteById(String goodId) throws Exception {
+    public Result deleteById(String goodId) throws Exception {
+        String goodLockKey = "goodLock:" + goodId;  // 锁住商品的库存
+        String goodLockValue = String.valueOf(System.currentTimeMillis());
+        boolean goodLockAcquired = redisLock.lock(goodLockKey, goodLockValue, 100);  // 锁住当前商品
+        if (!goodLockAcquired) {
+            return Result.error("访问过于频繁，请重试");
+        }
+        try {
         String url=shopManageMapper.selectUrlbyId(goodId);
         aliOssUtils.deleteImg(url);
         shopManageMapper.deleteById(goodId);
+        } finally {
+            // 释放商品锁
+            redisLock.unlock(goodLockKey, goodLockValue);
+        }
+        return Result.success();
     }
 
     @Override
-    public void updateGood(Good good) {
-        shopManageMapper.updateGood(good);
+    public Result updateGood(Good good) {
+        String goodLockKey = "goodLock:" + good.getGoodId();  // 锁住商品的库存
+        String goodLockValue = String.valueOf(System.currentTimeMillis());
+        boolean goodLockAcquired = redisLock.lock(goodLockKey, goodLockValue, 100);  // 锁住当前商品
+        if (!goodLockAcquired) {
+            return Result.error("访问过于频繁，请重试");
+        }    try {
+        shopManageMapper.updateGood(good); } finally {
+            // 释放商品锁
+            redisLock.unlock(goodLockKey, goodLockValue);
+        }
+        return Result.success();
     }
 
     @Override

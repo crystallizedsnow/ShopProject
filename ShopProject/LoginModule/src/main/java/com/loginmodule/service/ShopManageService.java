@@ -3,6 +3,7 @@ package com.loginmodule.service;
 import com.aliyuncs.exceptions.ClientException;
 import com.loginmodule.pojo.Good;
 import com.loginmodule.pojo.PageBean;
+import com.loginmodule.pojo.Result;
 import com.loginmodule.pojo.Shop;
 import org.apache.ibatis.annotations.Delete;
 import org.springframework.stereotype.Service;
@@ -10,9 +11,9 @@ import org.springframework.stereotype.Service;
 @Service
 public interface ShopManageService {
     boolean insertGood(Good good);
-    void deleteById(String goodId) throws Exception;
+    Result deleteById(String goodId) throws Exception;
 
-    void updateGood(Good good);
+    Result updateGood(Good good);
 
     Shop getShop(String userName);
 
