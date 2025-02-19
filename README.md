@@ -38,9 +38,7 @@
 - 安装依赖: `npm install`
 - 启动前端服务器: `npm run serve`
 
-## 鸣谢
 
-- 感谢 Vue.js、Spring Boot、Element UI 和阿里云。
 
 # E-commerce Platform
 
@@ -81,6 +79,4 @@ A front-end and back-end separated e-commerce platform built with **Vue 2**, **S
 - Install dependencies: `npm install`
 - Start the server: `npm run serve`
 
-## Acknowledgements
 
-- Thanks to Vue.js, Spring Boot, Element UI, and Alibaba Cloud.
